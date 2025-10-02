@@ -1,0 +1,20 @@
+/* SmartSPE UI demo styles.
+ * Keep lightweight; rely on Moodle bootstrap variables/utilities where possible.
+ */
+
+.smartspe-wrapper { max-width: 1280px; margin: 0 auto; }
+.smartspe-title { font-weight: 600; }
+.smartspe-intro { font-size: .9rem; }
+.smartspe-card { transition: box-shadow .18s ease, transform .18s ease; }
+.smartspe-card:hover { box-shadow: 0 4px 18px rgba(0,0,0,.08); transform: translateY(-2px); }
+.smartspe-avatar { object-fit: cover; background: #f2f2f2; }
+.smartspe-summary { font-size: .85rem; line-height: 1.25rem; }
+.smartspe-status { font-weight: 500; }
+.smartspe-create-btn { white-space: nowrap; }
+
+/* Responsive tweaks */
+@media (max-width: 575px) {
+  .smartspe-header { flex-direction: column; align-items: flex-start !important; }
+  .smartspe-actions { margin-top: 1rem; width: 100%; }
+  .smartspe-create-btn { width: 100%; }
+}

@@ -16,11 +16,13 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Library of functions and constants for module label
+ * Library of functions and callbacks for SmartSPE module.
+ * Implements add/update/delete instance logic mapping the form fields
+ * to the custom schema defined in install.xml.
  *
  * @package mod_smartspe
- * @copyright  2025 SPEctra 
- * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ * @copyright 2025 SPEctra
+ * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
 

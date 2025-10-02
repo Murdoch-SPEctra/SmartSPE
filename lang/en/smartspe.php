@@ -15,11 +15,43 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Languages configuration for the plugintype_pluginname plugin.
+ * Language strings for SmartSPE module.
  *
- * @package   mod_smart_spe
- * @copyright 2025, Gilchrist Tavares gilchrist.tavares@gmail.com
+ * @package   mod_smartspe
+ * @copyright 2025, SPEctra
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-$string['pluginname'] = 'SmartSPE';
+$string['pluginname'] = 'SmartSPE'; // Generic plugin label sometimes used in admin trees.
+
+// Required standard activity module strings.
+$string['modulename'] = 'Self & Peer Evaluation';
+$string['modulenameplural'] = 'Self & Peer Evaluations';
+$string['pluginadministration'] = 'Self & Peer Evaluation administration';
+
+// Form labels & help.
+$string['activityname'] = 'Activity name';
+$string['activityname_help'] = 'The title displayed to students for this Self & Peer Evaluation activity.';
+$string['availability'] = 'Availability';
+$string['startdate'] = 'Start date';
+$string['enddate'] = 'End date';
+$string['questionsheading'] = 'Evaluation questions';
+$string['questioninstructions'] = 'Enter 2 to 5 custom Likert-scale questions (ratings 1–5). Leave later fields blank if fewer than 5.';
+$string['questionlabel'] = 'Question {$a}';
+$string['questiongrouplabel'] = 'Question {$a}';
+$string['questionplaceholder'] = 'Question {$a} text';
+$string['questionnickplaceholder'] = 'Nickname';
+$string['groupsheading'] = 'Groups CSV';
+$string['groupsinstructions'] = 'Upload a CSV with columns: GroupName, StudentID. One student per row. Header row optional.';
+$string['groupscsv'] = 'Groups CSV file';
+$string['commentsinfo_title'] = 'Comments requirement';
+$string['commentsinfo_body'] = 'Each student must enter self and peer comments. These are always collected and analysed for sentiment.';
+
+// Validation messages.
+$string['error_endbeforestart'] = 'End date must be after start date.';
+$string['error_minquestions'] = 'At least two questions are required.';
+$string['error_question_gap'] = 'Remove gaps: fill earlier question(s) or clear this one.';
+$string['error_requiredquestion'] = 'This question text is required.';
+$string['error_nickwithoutquestion'] = 'Nickname supplied without a question.';
+$string['error_duplicate_nick'] = 'Duplicate nickname: {$a}';
+

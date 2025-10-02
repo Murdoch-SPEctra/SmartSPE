@@ -1,0 +1,31 @@
+{{!  Main layout template for SmartSPE activity UI demo }}
+<div class="smartspe-wrapper">
+  <div class="smartspe-header d-flex justify-content-between align-items-center mb-4">
+    <div>
+      <h2 class="smartspe-title">{{activityname}}</h2>
+      {{{introhtml}}}
+    </div>
+    {{#showcreatebutton}}
+    <div class="smartspe-actions">
+      <button class="btn btn-primary smartspe-create-btn" disabled title="Demo only">{{createbuttonlabel}}</button>
+    </div>
+    {{/showcreatebutton}}
+  </div>
+
+  <div class="smartspe-filters mb-3">
+    {{#filters}}
+      <button class="btn btn-sm me-2 {{#active}}btn-secondary active{{/active}}{{^active}}btn-outline-secondary{{/active}}" disabled>{{name}}</button>
+    {{/filters}}
+  </div>
+
+  {{#has_scenarios}}
+  <div class="row row-cols-1 row-cols-md-2 row-cols-xl-3 g-4 smartspe-cards">
+    {{#scenarios}}
+      {{> mod_smartspe/scenario_card }}
+    {{/scenarios}}
+  </div>
+  {{/has_scenarios}}
+  {{^has_scenarios}}
+    <div class="alert alert-warning">{{emptymessage}}</div>
+  {{/has_scenarios}}
+</div>

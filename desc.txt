@@ -1,0 +1,17 @@
+Plugin description
+
+So starting off with admin
+
+Each course should have the option to add an SPE 
+activity (there could be multiple SPE instances)
+
+Each SPE activity within a course
+needs a group to be created which works
+by uploading a CSV file which contains 
+GroupName and student ids and group name
+
+Then there should be form fields
+to add activity name description
+start , end date , Evaluation questions(2-5 likert scale)
+, the questions should have a nickname option asw
+Disable the other module options (if possible)
