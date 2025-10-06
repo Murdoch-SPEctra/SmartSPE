@@ -31,7 +31,9 @@ $string['pluginadministration'] = 'Self & Peer Evaluation administration';
 
 // Form labels & help.
 $string['activityname'] = 'Activity name';
-$string['activityname_help'] = 'The title displayed to students for this Self & Peer Evaluation activity.';
+$string['description'] = 'Description';
+$string['activitydescription'] = 'Activity description';
+$string['activityname_help'] = 'Enter a name for this Self & Peer Evaluation activity. (Up to 64 characters.) This name will be shown on the course page and in activity lists.';
 $string['availability'] = 'Availability';
 $string['startdate'] = 'Start date';
 $string['enddate'] = 'End date';

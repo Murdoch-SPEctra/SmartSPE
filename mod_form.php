@@ -26,25 +26,45 @@
 
 require_once(__DIR__ . '/../../config.php');
 require_once($CFG->dirroot . '/course/moodleform_mod.php');
+require_once($CFG->libdir . '/filelib.php');
 
 class mod_smartspe_mod_form extends moodleform_mod {
 
     /**
-     * Define the form fields for creating/updating an SPE activity.
+     * Defines forms elements.
      */
     public function definition() {
         $mform = $this->_form;
 
-        // Activity core settings.
-        $mform->addElement('header', 'generalhdr', get_string('general')); // Core general header.
+        
 
-        $mform->addElement('text', 'name', get_string('activityname', 'mod_smartspe'), ['size' => 64]);
+        // Activity core settings.
+        $mform->addElement('header', 'generalhdr', get_string('general')); 
+
+        $mform->addElement('text', 'name', get_string('activityname', 'mod_smartspe'),
+                            ['size' => 64, 'maxlength' => 64]);
         $mform->setType('name', PARAM_TEXT);
         $mform->addRule('name', null, 'required', null, 'client');
-        $mform->addHelpButton('name', 'activityname', 'mod_smartspe'); // Optional if help string exists later.
+        $mform->addHelpButton('name', 'activityname', 'mod_smartspe'); 
 
-        // Standard intro (description) - stored in intro/introformat automatically by core.
-        $this->standard_intro_elements();
+       // Description
+
+       // ----- Activity Description -----
+        $mform->addElement('header', 'descriptionhdr',
+             get_string('description', 'mod_smartspe'));
+
+        // Add a normal textarea for description
+        $mform->addElement('textarea', 'desc',
+                get_string('activitydescription', 'mod_smartspe'), [
+            'rows' => 10,
+            'cols' => 50
+        ]);
+
+        // Set type to clean text
+        $mform->setType('desc', PARAM_TEXT);
+        
+
+        
 
         // Availability scheduling.
         $mform->addElement('header', 'availabilityhdr', get_string('availability', 'mod_smartspe'));
@@ -74,70 +94,90 @@ class mod_smartspe_mod_form extends moodleform_mod {
 
         for ($i = 1; $i <= 5; $i++) {
             $qgrp = [];
-            $qgrp[] =& $mform->createElement('text', 'question' . $i, '', ['size' => 60, 'maxlength' => 255, 'placeholder' => get_string('questionplaceholder', 'mod_smartspe', $i)]);
-            $qgrp[] =& $mform->createElement('text', 'question' . $i . '_nick', '', ['size' => 20, 'maxlength' => 50, 'placeholder' => get_string('questionnickplaceholder', 'mod_smartspe')]);
-            $mform->addGroup($qgrp, 'questiongroup' . $i, get_string('questiongrouplabel', 'mod_smartspe', $i), '  ', false);
+            $qgrp[] =& $mform->createElement('text', 'question' . $i, '',
+            [  
+                'size' => 60,
+                'maxlength' => 255,
+                'placeholder' => get_string('questionplaceholder', 'mod_smartspe', $i)
+            ]);
+            $mform->addGroup($qgrp, 'questiongroup' . $i,
+                get_string('questiongrouplabel', 'mod_smartspe', $i),
+                 '  ', false);
             $mform->setType('question' . $i, PARAM_TEXT);
-            $mform->setType('question' . $i . '_nick', PARAM_ALPHANUMEXT);
             if ($i <= 2) {
                 $mform->addRule('questiongroup' . $i, get_string('error_requiredquestion', 'mod_smartspe'), 'required', null, 'client');
             }
         }
 
-        // IMPORTANT: moodleform_mod expects core hidden fields (course, module, section, etc.).
-        // Re-introduce standard elements, then optionally we could remove or freeze ones we don't want to expose.
         $this->standard_coursemodule_elements();
-        // Example (uncomment to hide grading/completion controls if not used yet):
-        // $mform->removeElement('availabilityconditionsjson');
-        // $mform->removeElement('completion');
-        // $mform->removeElement('completionexpected');
-        // $mform->removeElement('grade');
-
+       
         $this->add_action_buttons();
     }
 
-    /**
-     * Custom validation: ensure dates make sense and question ordering has no gaps.
-     * @param array $data
-     * @param array $files
-     * @return array errors
-     */
-    public function validation($data, $files) {
-        $errors = parent::validation($data, $files);
+    function validation($data, $files) {
+        global $CFG;
 
-        // Start must be before end.
-        if (!empty($data['start_date']) && !empty($data['end_date']) && $data['start_date'] >= $data['end_date']) {
+        $errors = parent::validation($data, $files);
+        // Server side validation.
+        // Activity name.
+        $name = trim((string)($data['name'] ?? ''));
+        if ($name === '') {
+            $errors['name'] = get_string('required');
+        } else if (\core_text::strlen($name) > 64) {
+            $errors['name'] = get_string('maximumchars', '', 64);
+        }
+
+        // Validate scheduling.
+        $start = (int)($data['start_date'] ?? 0); 
+        $end   = (int)($data['end_date'] ?? 0);
+
+        if (empty($start)) {
+            $errors['start_date'] = get_string('required');
+        }
+        if (empty($end)) {
+            $errors['end_date'] = get_string('required');
+        } else if (!empty($start) && $end <= $start) {
             $errors['end_date'] = get_string('error_endbeforestart', 'mod_smartspe');
         }
 
-        // Validate question continuity & minimum (2 required) and nicknames uniqueness if provided.
-        $providedcount = 0; $previousblank = false; $nicks = [];
+        // first two required, each <= 255 chars.
         for ($i = 1; $i <= 5; $i++) {
-            $q = trim($data['question' . $i] ?? '');
-            $nick = trim($data['question' . $i . '_nick'] ?? '');
-            if ($q === '') {
-                $previousblank = true;
-                if ($nick !== '') {
-                    $errors['questiongroup' . $i] = get_string('error_nickwithoutquestion', 'mod_smartspe');
-                }
-            } else {
-                $providedcount++;
-                if ($previousblank) {
-                    $errors['questiongroup' . $i] = get_string('error_question_gap', 'mod_smartspe');
-                }
-                if ($nick !== '') {
-                    if (in_array(strtolower($nick), $nicks, true)) {
-                        $errors['questiongroup' . $i] = get_string('error_duplicate_nick', 'mod_smartspe', $nick);
-                    } else {
-                        $nicks[] = strtolower($nick);
-                    }
-                }
+            $key = 'question' . $i;
+            $val = trim((string)($data[$key] ?? ''));
+
+            if ($i <= 2 && $val === '') {
+                $errors['questiongroup' . $i] = get_string('required');
+            }
+
+            if ($val !== '' && \core_text::strlen($val) > 255) {
+                $errors[$key] = get_string('maximumchars', '', 255);
             }
         }
-        if ($providedcount < 2) {
-            $errors['questiongroup1'] = get_string('error_minquestions', 'mod_smartspe');
+
+        // Validate CSV upload presence (server-side).
+        $draftid = (int)($data['groupscsv'] ?? 0);
+        if (empty($draftid)) {
+            $errors['groupscsv'] = get_string('required');
+        } else {            
+            $info = file_get_draft_area_info($draftid);
+            if (empty($info['filecount'])) {
+                $errors['groupscsv'] = get_string('required');
+            }
         }
 
         return $errors;
     }
+
+    function data_preprocessing(&$default_values) {
+       // Default dates when creating a new instance.
+        if (empty($this->current->instance)) {
+            if (empty($default_values['start_date'])) {
+                $default_values['start_date'] = time();
+            }
+            if (empty($default_values['end_date'])) {
+                $default_values['end_date'] = time() + WEEKSECS*4;
+            }
+        }       
+    }
+    
 }
