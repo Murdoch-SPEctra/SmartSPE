@@ -25,4 +25,48 @@
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
+defined('MOODLE_INTERNAL') || die();
+
+function smartspe_supports($feature) {
+    // ../../lib/moodlelib.php line 406 for all features.
+    switch($feature) {
+        case FEATURE_MOD_INTRO:
+            return true;
+        case FEATURE_SHOW_DESCRIPTION:
+            return true; // Test this 
+        case FEATURE_BACKUP_MOODLE2:
+            return true;
+        case FEATURE_USES_QUESTIONS:
+            return true;
+        case FEATURE_GROUPS:
+            return false;
+        case FEATURE_GROUPINGS:
+            return false;
+        case FEATURE_MOD_PURPOSE:
+            return MOD_PURPOSE_COLLABORATION;
+        case FEATURE_COMPLETION_TRACKS_VIEWS:
+            return true;
+        case FEATURE_COMPLETION_HAS_RULES:
+            return true;
+        case FEATURE_QUICKCREATE:
+            return false;        
+        case FEATURE_GRADE_HAS_GRADE:
+            return false; 
+        default:
+            return null;
+    }
+}
+
+function smartspe_add_instance($instancedata, $mform = null){
+    global $DB;
+
+    // Output the submitted data for testing
+    echo '<pre>';
+    print_r($instancedata);
+    echo '</pre>';
+
+    // Stop execution so you can see the output
+    die('End of smartspe_add_instance()');
+
+};
 

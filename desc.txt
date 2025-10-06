@@ -1,5 +1,8 @@
 Plugin description
-
+Context Im making a SPE plugin for moodle ,
+in group project ocntexts students are required
+to evaluate themself and their peers and gives
+comments and scores
 So starting off with admin
 
 Each course should have the option to add an SPE 
