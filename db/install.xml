@@ -4,11 +4,10 @@
     xsi:noNamespaceSchemaLocation="../../../lib/xmldb/xmldb.xsd"
 >
   <TABLES>
-    <TABLE NAME="smartspe_activity" COMMENT="Table for SPE_Activity">
+    <TABLE NAME="smartspe" COMMENT="Table for SPE_Activity">
       <FIELDS>
         <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true"/>
         <FIELD NAME="course_id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false"/>
-        <FIELD NAME="created_by" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false"/>
         <FIELD NAME="name" TYPE="char" LENGTH="255" NOTNULL="true" SEQUENCE="false"/>
         <FIELD NAME="description" TYPE="text" NOTNULL="true" SEQUENCE="false"/>
         <FIELD NAME="start_date" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false"/>
@@ -17,7 +16,6 @@
       <KEYS>
         <KEY NAME="primary" TYPE="primary" FIELDS="id"/>
         <KEY NAME="course_id_fk" TYPE="foreign" FIELDS="course_id" REFTABLE="course" REFFIELDS="id"/>
-        <KEY NAME="user_id_fk" TYPE="foreign" FIELDS="created_by" REFTABLE="user" REFFIELDS="id"/>
       </KEYS>
     </TABLE>
     <TABLE NAME="smartspe_group" COMMENT="Table for SPE_Group">
@@ -28,7 +26,7 @@
       </FIELDS>
       <KEYS>
         <KEY NAME="primary" TYPE="primary" FIELDS="id"/>
-        <KEY NAME="spe_id_fk" TYPE="foreign" FIELDS="spe_id" REFTABLE="smartspe_activity" REFFIELDS="id"/>
+        <KEY NAME="spe_id_fk" TYPE="foreign" FIELDS="spe_id" REFTABLE="smartspe" REFFIELDS="id"/>
       </KEYS>
     </TABLE>
     <TABLE NAME="smartspe_group_member" COMMENT="Table for SPE_Group_Member">
@@ -52,7 +50,7 @@
       </FIELDS>
       <KEYS>
         <KEY NAME="primary" TYPE="primary" FIELDS="id"/>
-        <KEY NAME="spe_id_fk" TYPE="foreign" FIELDS="spe_id" REFTABLE="smartspe_activity" REFFIELDS="id"/>
+        <KEY NAME="spe_id_fk" TYPE="foreign" FIELDS="spe_id" REFTABLE="smartspe" REFFIELDS="id"/>
         <KEY NAME="student_id_fk" TYPE="foreign" FIELDS="student_id" REFTABLE="user" REFFIELDS="id"/>
       </KEYS>
     </TABLE>
@@ -61,12 +59,12 @@
         <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true"/>
         <FIELD NAME="spe_id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false"/>
         <FIELD NAME="text" TYPE="text" NOTNULL="true" SEQUENCE="false"/>
-        <FIELD NAME="order" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false"/>
+        <FIELD NAME="sort_order" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false"/>
         <FIELD NAME="score" TYPE="int" LENGTH="10" NOTNULL="false" SEQUENCE="false"/>
       </FIELDS>
       <KEYS>
         <KEY NAME="primary" TYPE="primary" FIELDS="id"/>
-        <KEY NAME="spe_id_fk" TYPE="foreign" FIELDS="spe_id" REFTABLE="smartspe_activity" REFFIELDS="id"/>
+        <KEY NAME="spe_id_fk" TYPE="foreign" FIELDS="spe_id" REFTABLE="smartspe" REFFIELDS="id"/>
       </KEYS>
     </TABLE>
     <TABLE NAME="smartspe_answer" COMMENT="Table for SPE_Answer">

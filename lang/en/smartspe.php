@@ -25,9 +25,9 @@
 $string['pluginname'] = 'SmartSPE'; // Generic plugin label sometimes used in admin trees.
 
 // Required standard activity module strings.
-$string['modulename'] = 'Self & Peer Evaluation';
-$string['modulenameplural'] = 'Self & Peer Evaluations';
-$string['pluginadministration'] = 'Self & Peer Evaluation administration';
+$string['modulename'] = 'Self and Peer Evaluation';
+$string['modulenameplural'] = 'Self and Peer Evaluations';
+$string['pluginadministration'] = 'Self and Peer Evaluation administration';
 
 // Form labels & help.
 $string['activityname'] = 'Activity name';

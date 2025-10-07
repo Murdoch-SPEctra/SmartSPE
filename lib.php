@@ -57,16 +57,42 @@ function smartspe_supports($feature) {
     }
 }
 
-function smartspe_add_instance($instancedata, $mform = null){
+function smartspe_add_instance($data, $mform = null){
+
+
     global $DB;
 
-    // Output the submitted data for testing
-    echo '<pre>';
-    print_r($instancedata);
-    echo '</pre>';
+    // Create an acitivty object
+    $activity = new stdClass();
+    $activity->name = $data->name;
+    $activity->description = $data->desc;
+    $activity->created_by = 2; // Admin user id for testing , need to remove this
+    $activity->start_date = $data->start_date;
+    $activity->end_date = $data->end_date;
+    $activity->course_id = $data->course;
+    $speid = $DB->insert_record('smartspe', $activity);
 
-    // Stop execution so you can see the output
-    die('End of smartspe_add_instance()');
+
+    // Now handle the questions
+    
+    foreach ($data->questions as $i => $questiontext) {
+        $questiontext = trim((string)$questiontext);
+        if ($questiontext !== '') {
+            $question = new stdClass();
+            $question->spe_id = $speid;
+            $question->sort_order = (int)$i;
+            $question->text = $questiontext;
+
+            $DB->insert_record('smartspe_question', $question);
+        }
+    }
+
+    // Group Management
+
+    // For now we skip this as groups are not enabled
+
+    return $speid;  
+
 
 };
 

@@ -50,10 +50,8 @@ class mod_smartspe_mod_form extends moodleform_mod {
        // Description
 
        // ----- Activity Description -----
-        $mform->addElement('header', 'descriptionhdr',
-             get_string('description', 'mod_smartspe'));
+        
 
-        // Add a normal textarea for description
         $mform->addElement('textarea', 'desc',
                 get_string('activitydescription', 'mod_smartspe'), [
             'rows' => 10,
@@ -93,19 +91,21 @@ class mod_smartspe_mod_form extends moodleform_mod {
         $mform->addElement('static', 'questioninstructions', '', get_string('questioninstructions', 'mod_smartspe'));
 
         for ($i = 1; $i <= 5; $i++) {
-            $qgrp = [];
-            $qgrp[] =& $mform->createElement('text', 'question' . $i, '',
-            [  
-                'size' => 60,
-                'maxlength' => 255,
-                'placeholder' => get_string('questionplaceholder', 'mod_smartspe', $i)
-            ]);
-            $mform->addGroup($qgrp, 'questiongroup' . $i,
+            $name = "questions[$i]"; // Use array syntax in form name.
+
+            $mform->addElement('text', $name, 
                 get_string('questiongrouplabel', 'mod_smartspe', $i),
-                 '  ', false);
-            $mform->setType('question' . $i, PARAM_TEXT);
+                [
+                    'size' => 60,
+                    'maxlength' => 255,
+                    'placeholder' => get_string('questionplaceholder', 'mod_smartspe', $i)
+                ]
+            );
+
+            $mform->setType($name, PARAM_TEXT);
+
             if ($i <= 2) {
-                $mform->addRule('questiongroup' . $i, get_string('error_requiredquestion', 'mod_smartspe'), 'required', null, 'client');
+                $mform->addRule($name, get_string('error_requiredquestion', 'mod_smartspe'), 'required', null, 'client');
             }
         }
 
@@ -141,16 +141,13 @@ class mod_smartspe_mod_form extends moodleform_mod {
         }
 
         // first two required, each <= 255 chars.
-        for ($i = 1; $i <= 5; $i++) {
-            $key = 'question' . $i;
-            $val = trim((string)($data[$key] ?? ''));
-
+        foreach ($data['questions'] as $i => $val) {
+            $val = trim((string)$val);
             if ($i <= 2 && $val === '') {
-                $errors['questiongroup' . $i] = get_string('required');
+                $errors["questions[$i]"] = get_string('required');
             }
-
             if ($val !== '' && \core_text::strlen($val) > 255) {
-                $errors[$key] = get_string('maximumchars', '', 255);
+                $errors["questions[$i]"] = get_string('maximumchars', '', 255);
             }
         }
 
