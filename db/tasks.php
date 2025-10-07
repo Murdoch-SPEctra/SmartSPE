@@ -15,18 +15,13 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Label module version info
+ * Defines tasks for the SmartSPE module.
  *
- * @package mod_label
- * @copyright  2003 onwards Martin Dougiamas  {@link http://moodle.com}
- * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ * @package     mod_smartspe
+ * @copyright   2025
+ * @license     http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
 defined('MOODLE_INTERNAL') || die();
 
-$plugin->version   = 2025100200;       // The current module version (Date: YYYYMMDDXX).
-$plugin->requires  = 2025040800;    // Requires this Moodle version.
-$plugin->component = 'mod_smartspe'; // Full name of the plugin (used for diagnostics)
-
-$plugin->maturity = MATURITY_ALPHA;
-$plugin->release = '0.1';
+$tasks = [];

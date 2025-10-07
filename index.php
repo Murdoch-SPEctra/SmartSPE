@@ -15,18 +15,13 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Label module version info
+ * This page lists all the instances of SmartSPE in a given course.
  *
- * @package mod_label
- * @copyright  2003 onwards Martin Dougiamas  {@link http://moodle.com}
+ * @package    mod_smartspe
+ * @copyright  2025 SPEctra
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-defined('MOODLE_INTERNAL') || die();
+require_once(__DIR__ . '/../../config.php');
+require_once(__DIR__ . '/lib.php');
 
-$plugin->version   = 2025100200;       // The current module version (Date: YYYYMMDDXX).
-$plugin->requires  = 2025040800;    // Requires this Moodle version.
-$plugin->component = 'mod_smartspe'; // Full name of the plugin (used for diagnostics)
-
-$plugin->maturity = MATURITY_ALPHA;
-$plugin->release = '0.1';
