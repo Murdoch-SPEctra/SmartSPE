@@ -97,7 +97,6 @@ class mod_smartspe_mod_form extends moodleform_mod {
                 get_string('questiongrouplabel', 'mod_smartspe', $i),
                 [
                     'size' => 60,
-                    'maxlength' => 255,
                     'placeholder' => get_string('questionplaceholder', 'mod_smartspe', $i)
                 ]
             );
@@ -146,9 +145,6 @@ class mod_smartspe_mod_form extends moodleform_mod {
             if ($i <= 2 && $val === '') {
                 $errors["questions[$i]"] = get_string('required');
             }
-            if ($val !== '' && \core_text::strlen($val) > 255) {
-                $errors["questions[$i]"] = get_string('maximumchars', '', 255);
-            }
         }
 
         // Validate CSV upload presence (server-side).
@@ -161,7 +157,6 @@ class mod_smartspe_mod_form extends moodleform_mod {
                 $errors['groupscsv'] = get_string('required');
             }
         }
-
         return $errors;
     }
 
