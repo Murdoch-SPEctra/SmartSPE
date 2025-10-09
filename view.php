@@ -24,77 +24,126 @@
 
 require(__DIR__ . '/../../config.php');
 
-$id = optional_param('id', 0, PARAM_INT); // Course module ID.
+defined('MOODLE_INTERNAL') || die();
 
-// Standard Moodle activity bootstrap (minimal for UI demo).
+$id = optional_param('id', 0, PARAM_INT); // Course module id.
+$n  = optional_param('n', 0, PARAM_INT);  // Instance id.
+
+global $DB, $OUTPUT, $PAGE;
+
 if ($id) {
-    $cm         = get_coursemodule_from_id('smartspe', $id, 0, false, MUST_EXIST);
-    $course     = get_course($cm->course);
-    $moduleinstance = (object)['name' => get_string('pluginname', 'mod_smartspe')]; // Placeholder.
+    $cm = get_coursemodule_from_id('smartspe', $id, 0, false, MUST_EXIST);
+    $course = $DB->get_record('course', ['id' => $cm->course], '*', MUST_EXIST);
+    $smartspe = $DB->get_record('smartspe', ['id' => $cm->instance], '*', MUST_EXIST);
+} else if ($n) {
+    $smartspe = $DB->get_record('smartspe', ['id' => $n], '*', MUST_EXIST);
+    $course = $DB->get_record('course', ['id' => $smartspe->course_id ?? $smartspe->course ?? 0], '*', MUST_EXIST);
+    $cm = get_coursemodule_from_instance('smartspe', $smartspe->id, $course->id, false, MUST_EXIST);
 } else {
     print_error('missingparameter');
 }
 
-require_login($course, false, $cm);
+require_login($course, true, $cm);
 $context = context_module::instance($cm->id);
+require_capability('mod/smartspe:view', $context);
 
+// Page setup.
 $PAGE->set_url('/mod/smartspe/view.php', ['id' => $cm->id]);
-$PAGE->set_title(format_string($moduleinstance->name));
+$PAGE->set_title(format_string($smartspe->name));
 $PAGE->set_heading(format_string($course->fullname));
 $PAGE->set_context($context);
 $PAGE->set_pagelayout('incourse');
 
-// Static demo data – replace later with real DB backed structures.
-$scenarios = [
-    [
-        'id' => 1,
-        'title' => 'Patient onboarding interview',
-        'tags' => ['communication', 'ethics'],
-        'difficulty' => 'Beginner',
-        'status' => 'Draft',
-        'summary' => 'Introduce yourself to a virtual patient and gather background information.',
-        'avatarurl' => $OUTPUT->image_url('u/f1')->out(),
-        'updated' => userdate(time() - 3600)
-    ],
-    [
-        'id' => 2,
-        'title' => 'Conflict resolution (team)',
-        'tags' => ['teamwork', 'leadership'],
-        'difficulty' => 'Intermediate',
-        'status' => 'Published',
-        'summary' => 'Mediate a disagreement between two colleagues in a simulated breakout.',
-        'avatarurl' => $OUTPUT->image_url('u/f2')->out(),
-        'updated' => userdate(time() - 7200)
-    ],
-    [
-        'id' => 3,
-        'title' => 'Crisis communication briefing',
-        'tags' => ['communication', 'pressure'],
-        'difficulty' => 'Advanced',
-        'status' => 'In review',
-        'summary' => 'Deliver concise instructions during a high-pressure simulated event.',
-        'avatarurl' => $OUTPUT->image_url('u/f3')->out(),
-        'updated' => userdate(time() - 14200)
-    ],
-];
+// Completion: mark viewed.
+$completion = new completion_info($course);
+if ($completion->is_enabled($cm)) {
+    $completion->set_module_viewed($cm);
+}
 
-$templatecontext = [
-    'activityname' => format_string($moduleinstance->name),
-    'introhtml' => html_writer::div(get_string('uiplaceholderintro', 'mod_smartspe'), 'smartspe-intro alert alert-info'),
-    'showsidepanel' => true,
-    'filters' => [
-        ['name' => 'All', 'active' => true],
-        ['name' => 'Draft'],
-        ['name' => 'Published'],
-        ['name' => 'In review'],
-    ],
-    'scenarios' => array_map(function($s) { return $s; }, $scenarios),
-    'has_scenarios' => !empty($scenarios),
-    'emptymessage' => get_string('emptyscenarios', 'mod_smartspe'),
-    'showcreatebutton' => true,
-    'createbuttonlabel' => get_string('createScenario', 'mod_smartspe'),
-];
+// Detect role (teacher/manager vs student) using core capability.
+$isteacher = has_capability('moodle/course:manageactivities', $context);
+
+// Fetch questions (if any).
+$questions = $DB->get_records('smartspe_question', ['spe_id' => $smartspe->id], 'sort_order ASC');
 
 echo $OUTPUT->header();
-echo $OUTPUT->render_from_template('mod_smartspe/main', $templatecontext);
+echo $OUTPUT->heading(format_string($smartspe->name));
+
+// Description.
+if (!empty($smartspe->description)) {
+    echo html_writer::div(format_text($smartspe->description, FORMAT_PLAIN, ['context' => $context]), 'mod-smartspe-desc');
+}
+
+// Availability info.
+$now = time();
+$start = (int)($smartspe->start_date ?? 0);
+$end   = (int)($smartspe->end_date ?? 0);
+
+if ($start && $now < $start) {
+    echo $OUTPUT->notification('Not open yet. Opens: ' . userdate($start), 'info');
+} else if ($end && $now > $end) {
+    echo $OUTPUT->notification('Closed. Closed on: ' . userdate($end), 'warning');
+} else if ($start || $end) {
+    $msg = [];
+    if ($start) { $msg[] = 'Opens: ' . userdate($start); }
+    if ($end)   { $msg[] = 'Closes: ' . userdate($end); }
+    echo $OUTPUT->notification(implode(' | ', $msg), 'info');
+}
+
+if ($isteacher) {
+    // Teacher view.
+    echo $OUTPUT->heading('Teacher view', 3);
+
+    // Quick links (editing UI usually appears when editing is on).
+    $editurl = new moodle_url('/course/modedit.php', ['update' => $cm->id, 'return' => 1]);
+    echo html_writer::div(html_writer::link($editurl, 'Edit settings'), 'mod-smartspe-actions');
+
+    // Show configured questions.
+    echo $OUTPUT->heading('Questions', 4);
+    if ($questions) {
+        $list = html_writer::start_tag('ol');
+        foreach ($questions as $q) {
+            $list .= html_writer::tag('li', format_string($q->text));
+        }
+        $list .= html_writer::end_tag('ol');
+        echo $list;
+    } else {
+        echo html_writer::div('No questions configured.', 'muted');
+    }
+
+    // Placeholder for future reports/actions.
+    echo html_writer::div('Reports and responses UI go here.', 'muted');
+
+} else {
+    // Student view.
+    echo $OUTPUT->heading('Student view', 3);
+
+    // Show questions preview (optional).
+    if ($questions) {
+        echo $OUTPUT->heading('You will be asked to rate on:', 4);
+        $list = html_writer::start_tag('ul');
+        foreach ($questions as $q) {
+            $list .= html_writer::tag('li', format_string($q->text));
+        }
+        $list .= html_writer::end_tag('ul');
+        echo $list;
+    }
+
+    // Call-to-action button (placeholder target for now).
+    $open = (!$start || $now >= $start) && (!$end || $now <= $end);
+    if ($open) {
+        // Replace with actual attempt URL when implemented.
+        $attempturl = new moodle_url('/mod/smartspe/attempt.php', ['id' => $cm->id]);
+        echo html_writer::div(html_writer::link($attempturl, 'Start evaluation', ['class' => 'btn btn-primary']), 'mod-smartspe-cta');
+    } else {
+        echo html_writer::div(html_writer::tag('button', 'Start evaluation', [
+            'class' => 'btn btn-secondary',
+            'disabled' => 'disabled'
+        ]), 'mod-smartspe-cta');
+    }
+}
+
 echo $OUTPUT->footer();
+
+
+
