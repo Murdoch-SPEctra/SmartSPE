@@ -48,6 +48,8 @@ $string['groupsinstructions'] = 'Upload a CSV with columns: GroupName, StudentID
 $string['groupscsv'] = 'Groups CSV file';
 $string['commentsinfo_title'] = 'Comments requirement';
 $string['commentsinfo_body'] = 'Each student must enter self and peer comments. These are always collected and analysed for sentiment.';
+$string['file_not_saved'] = 'File could not be saved. Please try again.';
+$string['invalid_file_type'] = 'Invalid file type. Please upload a CSV file.';
 
 // Validation messages.
 $string['error_endbeforestart'] = 'End date must be after start date.';
@@ -56,4 +58,14 @@ $string['error_question_gap'] = 'Remove gaps: fill earlier question(s) or clear 
 $string['error_requiredquestion'] = 'This question text is required.';
 $string['error_nickwithoutquestion'] = 'Nickname supplied without a question.';
 $string['error_duplicate_nick'] = 'Duplicate nickname: {$a}';
+
+// Capability strings.
+$string['smartspe:view']   = 'View SmartSPE activity';
+
+// Other strings.
+$string['groupnotfound'] = 'You are not assigned to any group for this activity. Please contact your instructor.';
+
+// Attempt
+$string['submissionsaved'] = 'Your response has been saved.';
+$string['alreadyattempted'] = 'You have already submitted your response for this activity.';
 
