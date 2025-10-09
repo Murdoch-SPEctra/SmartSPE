@@ -27,6 +27,8 @@
 
 defined('MOODLE_INTERNAL') || die();
 
+use \mod_smartspe\local\CSV;
+
 function smartspe_supports($feature) {
     // ../../lib/moodlelib.php line 406 for all features.
     switch($feature) {
@@ -56,42 +58,112 @@ function smartspe_supports($feature) {
             return null;
     }
 }
+function spe_handle_csv($data , $speid){
+    $fs = get_file_storage();
+    $context = context_module::instance($data->coursemodule);
+
+    file_save_draft_area_files(
+        $data->groupscsv,                  // draftitemid from form
+        $context->id,                     // context
+        'mod_smartspe',                 // component
+        'groupcsv',                     // name of file area
+        $speid,                              // each file is tied to the SPE
+        [
+            'subdirs' => 0,
+            'maxfiles' => 1,
+            'maxbytes' => 1048576, // 1MB
+        ]
+    );
+    $files = $fs->get_area_files($context->id, 'mod_smartspe', 'groupcsv', $speid, 'sortorder', false);
+
+    if (!$files) {
+        throw new moodle_exception('file_not_saved', 'mod_smartspe');
+    }
+    $file = reset($files);
+    $content = $file->get_content();
+    
+    if($file->getmime_type() !== 'text/csv'){
+        $file->delete();        
+        throw new moodle_exception('invalid_file_type', 'mod_smartspe');
+    }
+
+    // Add the CSV Handling here
+    // Below is how you you insert records into the DB
+    // 
+
+    $groupid = $DB->insert_record('smartspe_group', (object)[
+        'spe_id' => $speid,
+        'name' => 'GroupName here' // Get group name from the csv
+    ]);
+    $DB->insert_record('smartspe_group_member', (object)[
+        'group_id' => $groupid,
+        'user_id' => 0 // Get user id from the csv 
+    ]);
+
+
+    
+
+}
 
 function smartspe_add_instance($data, $mform = null){
 
 
     global $DB;
 
-    // Create an acitivty object
-    $activity = new stdClass();
-    $activity->name = $data->name;
-    $activity->description = $data->desc;
-    $activity->created_by = 2; // Admin user id for testing , need to remove this
-    $activity->start_date = $data->start_date;
-    $activity->end_date = $data->end_date;
-    $activity->course_id = $data->course;
-    $speid = $DB->insert_record('smartspe', $activity);
+    try {
+        $transaction = $DB->start_delegated_transaction();
 
+        // Create an acitivty object
+        $activity = new stdClass();
+        $activity->name = $data->name;
+        $activity->description = $data->desc;
+        $activity->created_by = 2; // Admin user id for testing , need to remove this
+        $activity->start_date = $data->start_date;
+        $activity->end_date = $data->end_date;
+        $activity->course_id = $data->course;
+        $speid = $DB->insert_record('smartspe', $activity);
 
-    // Now handle the questions
-    
-    foreach ($data->questions as $i => $questiontext) {
-        $questiontext = trim((string)$questiontext);
-        if ($questiontext !== '') {
-            $question = new stdClass();
-            $question->spe_id = $speid;
-            $question->sort_order = (int)$i;
-            $question->text = $questiontext;
+        // Now handle the questions
+        
+        foreach ($data->questions as $i => $questiontext) {
+            $questiontext = trim((string)$questiontext);
+            if ($questiontext !== '') {
+                $question = new stdClass();
+                $question->spe_id = $speid;
+                $question->sort_order = (int)$i;
+                $question->text = $questiontext;
+                $DB->insert_record('smartspe_question', $question);
+            }
+        }   
 
-            $DB->insert_record('smartspe_question', $question);
+        
+        spe_handle_csv($data,$speid);
+        
+        exit;
+        
+        // Insert group members for now (hardcoded)        
+
+        $groupid = $DB->insert_record('smartspe_group', (object)[
+            'spe_id' => $speid,
+            'name' => 'SPE Group 1'
+        ]);
+        $members = [3,4,5,6,7];
+        foreach ($members as $memberid) {
+            $DB->insert_record('smartspe_group_member', (object)[
+                'group_id' => $groupid,
+                'user_id' => $memberid
+            ]);
         }
+
+       
+        $transaction->allow_commit(); 
+        return $speid; 
+    } catch (\Throwable $th) {
+        $transaction->rollback($th);
+        throw $th;
     }
-
-    // Group Management
-
-    // For now we skip this as groups are not enabled
-
-    return $speid;  
+    
+ 
 
 
 };
