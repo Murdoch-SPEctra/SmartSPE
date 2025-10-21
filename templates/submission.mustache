@@ -1,0 +1,72 @@
+{{!
+    Template for displaying team member submissions
+}}
+
+
+<h2 class="mb-4">{{viewingsubmissionfor}}</h2>
+
+<div class="team-submissions">
+    {{#members}}
+    <div class="card mb-3">
+        <div class="card-header d-flex align-items-center" >
+            <img src="{{profilepic}}" alt="Profile Picture" class="rounded-circle mr-3" style="width: 50px; height: 50px;">
+            <div>
+                <h5 class="mb-0">{{fullname}}</h5>
+                <small class="text-muted">Student ID: {{studentid}}</small>
+            </div>            
+        </div>
+        <div class="collapse show" id="member-{{userid}}">
+            <div class="card-body">
+                <div class="criteria-ratings mb-4">
+                    <h6>Criteria Ratings</h6>
+                    <div class="row mb-2">
+                        {{#criteriaRow1}}
+                        <div class="col-4">
+                            <div class="border rounded p-2 text-center"
+                                data-bs-toggle="tooltip"
+                                data-bs-placement="top"
+                                title="{{tooltip}}">
+                                <div class='text-muted'>{{text}}</div>
+                                <div class="text-primary fw-bold fs-2 mt-1">{{score}}</div>
+                            </div>
+                        </div>
+                        {{/criteriaRow1}}
+                    </div>
+                    <div class="row mb-2">
+                        {{#criteriaRow2}}
+                        <div class="col-4">
+                            <div class="border rounded p-2 text-center"
+                                data-bs-toggle="tooltip"
+                                data-bs-placement="top"
+                                title="{{tooltip}}">
+                                <div class='text-muted'>{{text}}</div>
+                                <div class="text-primary fw-bold fs-2 mt-1">{{score}}</div>
+                            </div>
+                        </div>
+                        {{/criteriaRow2}}
+                    </div>
+                </div>
+
+                {{#isself}}
+                <div class="self-reflection py-1">
+                    <h6>Self Reflection:</h6>
+                    <div class="border rounded p-3 fst-italic text-muted">
+                        "{{selfreflect}}"
+                    </div>
+                </div>
+                {{/isself}}
+                
+                <div class="comments py-1">
+                    <h6>Comments:</h6>
+                    <div class="border rounded p-3 fst-italic text-muted">
+                        "{{comment}}"
+                    </div>
+                </div>                
+            </div>
+        </div>
+    </div>
+    {{/members}}
+</div>
+
+
+
