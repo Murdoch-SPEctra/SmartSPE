@@ -80,28 +80,73 @@ function spe_handle_csv($data , $speid){
         throw new moodle_exception('file_not_saved', 'mod_smartspe');
     }
     $file = reset($files);
-    $content = $file->get_content();
+    
     
     if($file->getmime_type() !== 'text/csv'){
         $file->delete();        
         throw new moodle_exception('invalid_file_type', 'mod_smartspe');
     }
+    $content = $file->get_content();
 
-    // Add the CSV Handling here
-    // Below is how you you insert records into the DB
-    // 
+    global $DB;
 
-    $groupid = $DB->insert_record('smartspe_group', (object)[
-        'spe_id' => $speid,
-        'name' => 'GroupName here' // Get group name from the csv
-    ]);
-    $DB->insert_record('smartspe_group_member', (object)[
-        'group_id' => $groupid,
-        'user_id' => 0 // Get user id from the csv 
-    ]);
+    $rows = array_map('str_getcsv', explode("\n", trim($content)));
+    if (count($rows) <= 1) {
+        throw new moodle_exception('empty_or_invalid_csv', 'mod_smartspe');
+    }
 
+    // Extract and validate header
+    $header = array_map('trim', array_shift($rows));
+    if (strtolower($header[0]) !== 'group name') {
+        throw new moodle_exception('invalid_csv_header', 'mod_smartspe');
+    }
 
-    
+    $groupnamemap = []; // to avoid duplicates
+    foreach ($rows as $i => $cols) {
+        // Skip empty lines
+        if (count(array_filter($cols)) === 0) {
+            continue;
+        }
+
+        $groupname = trim($cols[0]);
+        if ($groupname === '') {
+            continue;
+        }
+
+        // Check for duplicate group names (case-insensitive)
+        $lowername = strtolower($groupname);
+        if (isset($groupnamemap[$lowername])) {
+            continue;
+        }
+
+        $userids = array_slice($cols, 1);
+        $userids = array_filter(array_map('trim', $userids), fn($u) => $u !== '');
+
+        if (count($userids) === 0) {
+            continue;
+        }
+
+        // Insert into smartspe_group
+        $groupid = $DB->insert_record('smartspe_group', (object)[
+            'spe_id' => $speid,
+            'name' => $groupname
+        ]);
+
+        // Insert into smartspe_group_member
+        foreach ($userids as $uid) {
+            $DB->insert_record('smartspe_group_member', (object)[
+                'group_id' => $groupid,
+                'user_id' => (int)$uid
+            ]);
+        }
+
+        $groupnamemap[$lowername] = true;
+    }
+
+    // If no valid rows found
+    if (empty($groupnamemap)) {
+        throw new moodle_exception('no_valid_groups', 'mod_smartspe');
+    }   
 
 }
 
