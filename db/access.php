@@ -45,4 +45,16 @@ $capabilities = [
             'manager' => CAP_ALLOW,
         ]
     ],
+    'mod/smartspe:viewresults' => [
+        'riskbitmask' => RISK_PERSONAL,
+        'captype' => 'read',
+        'contextlevel' => CONTEXT_MODULE,
+        'archetypes' => [
+            'teacher' => CAP_ALLOW,
+            'editingteacher' => CAP_ALLOW,
+            'manager' => CAP_ALLOW,
+            'student' => CAP_PROHIBIT
+        ]
+    ],
+   
 ];
