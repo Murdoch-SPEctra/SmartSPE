@@ -24,7 +24,7 @@
 
 defined('MOODLE_INTERNAL') || die();
 
-$plugin->version   = 2025100200;       // The current module version (Date: YYYYMMDDXX).
+$plugin->version   = 2025102100;       // The current module version (Date: YYYYMMDDXX).
 $plugin->requires  = 2025040800;    // Requires this Moodle version.
 $plugin->component = 'mod_smartspe'; // Full name of the plugin (used for diagnostics)
 
