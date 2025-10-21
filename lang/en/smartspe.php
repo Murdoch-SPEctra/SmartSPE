@@ -24,6 +24,12 @@
 
 $string['pluginname'] = 'SmartSPE'; // Generic plugin label sometimes used in admin trees.
 
+
+// Capability strings.
+$string['smartspe:view']   = 'View SmartSPE activity';
+$string['smartspe:viewresults']   = 'View SmartSPE results';
+$string['smartspe:addinstance'] = 'Add a new SmartSPE activity';
+
 // Required standard activity module strings.
 $string['modulename'] = 'Self and Peer Evaluation';
 $string['modulenameplural'] = 'Self and Peer Evaluations';
@@ -59,13 +65,17 @@ $string['error_requiredquestion'] = 'This question text is required.';
 $string['error_nickwithoutquestion'] = 'Nickname supplied without a question.';
 $string['error_duplicate_nick'] = 'Duplicate nickname: {$a}';
 
-// Capability strings.
-$string['smartspe:view']   = 'View SmartSPE activity';
+
 
 // Other strings.
-$string['groupnotfound'] = 'You are not assigned to any group for this activity. Please contact your instructor.';
+$string['viewingsubmissionfor'] = 'Viewing submission for: {$a->fullname} (Student ID: {$a->studentid})';
+
 
 // Attempt
 $string['submissionsaved'] = 'Your response has been saved.';
 $string['alreadyattempted'] = 'You have already submitted your response for this activity.';
 
+// Errors
+$string['spe_notended'] = 'This SmartSPE evaluation has not ended yet.';
+$string['spe_notsubmitted'] = 'This submission has not been submitted.';
+$string['groupnotfound'] = 'You are not assigned to any group for this activity. Please contact your instructor.';
