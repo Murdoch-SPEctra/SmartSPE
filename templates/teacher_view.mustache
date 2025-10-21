@@ -1,0 +1,46 @@
+{{#description}}
+<div class="mod-smartspe-desc mb-4">
+  {{{description}}}
+</div>
+{{/description}}
+
+{{#status}}
+<div class="alert alert-{{statusclass}}">{{status}}</div>
+{{/status}}
+
+{{#teams}}
+<div class="team-box d-flex justify-content-between align-items-center border-bottom py-3">
+  <h5 class="mb-0">{{name}}</h5>
+  <div>
+    <a href="{{{viewurl}}}" class="btn btn-primary btn-sm me-2">
+        View Details
+    </a>
+    {{#disabled}}    
+    <span 
+        data-bs-toggle="tooltip" 
+        data-bs-placement="top" 
+        title="Can't be accessed until the SPE activity ends">
+        <a href="#" class="btn btn-secondary btn-sm me-2 disabled opacity-50" tabindex="-1" aria-disabled="true">
+          Export CSV
+        </a>
+    </span>
+    {{/disabled}}
+
+    {{^disabled}}    
+    <a href="{{{csvurl}}}" class="btn btn-secondary btn-sm">
+        Export CSV
+    </a>
+    {{/disabled}}
+  </div>
+</div>
+{{/teams}}
+
+{{^teams}}
+<p class="text-muted">No teams found for this activity.</p>
+{{/teams}}
+
+{{#editurl}}
+<div class="mod-smartspe-actions mt-4">
+  <a href="{{{editurl}}}" class="btn btn-primary">Edit settings</a>
+</div>
+{{/editurl}}
