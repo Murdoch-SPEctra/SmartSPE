@@ -22,9 +22,9 @@
  * @license     http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-require(__DIR__ . '/../../config.php');
-require_once(__DIR__ . '/lib.php');
-require_once(__DIR__ . '/classes/form/attempt_form.php');
+require(__DIR__ . '/../../../config.php');
+require_once(__DIR__ . '/../lib.php');
+require_once(__DIR__ . '/../classes/form/attempt_form.php');
 
 use mod_smartspe\form\attempt_form;
 
@@ -90,7 +90,7 @@ $customdata = [
     ],
     'questions' => array_values($questions)
 ];
-$actionurl = new moodle_url('/mod/smartspe/attempt.php', ['id' => $cm->id]);
+$actionurl = new moodle_url('/mod/smartspe/student/attempt.php', ['id' => $cm->id]);
 $mform = new attempt_form($actionurl, $customdata);
 
 
@@ -108,7 +108,7 @@ else if ($data = $mform->get_data()) {
         $submission->spe_id = $smartspe->id;
         $submission->student_id = $USER->id;
         $submission->last_saved_at = $timenow;
-        $submission->attempt_time = $timenow;
+        $submission->submitted_at = $timenow;
 
         $transaction = $DB->start_delegated_transaction();
 
@@ -151,7 +151,7 @@ else if ($data = $mform->get_data()) {
 else {
     // Display form
 
-    $PAGE->set_url('/mod/smartspe/attempt.php', ['id' => $cm->id]);
+    $PAGE->set_url('/mod/smartspe/student/attempt.php', ['id' => $cm->id]);
     $PAGE->set_title(format_string($smartspe->name));
     $PAGE->set_heading(format_string($course->fullname));
     $PAGE->set_context($context);
