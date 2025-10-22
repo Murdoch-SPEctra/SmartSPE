@@ -59,9 +59,10 @@ function smartspe_supports($feature) {
     }
 }
 function spe_handle_csv($data , $speid){
+    global $DB;
     $fs = get_file_storage();
     $context = context_module::instance($data->coursemodule);
-
+    $groups = [];
     file_save_draft_area_files(
         $data->groupscsv,                  // draftitemid from form
         $context->id,                     // context
@@ -79,18 +80,22 @@ function spe_handle_csv($data , $speid){
     if (!$files) {
         throw new moodle_exception('file_not_saved', 'mod_smartspe');
     }
-    $file = reset($files);
+    $file = reset($files);    
     
-    
-    if($file->getmime_type() !== 'text/csv'){
-        $file->delete();        
+    $filename = $file->get_filename();
+    if (pathinfo($filename, PATHINFO_EXTENSION) !== 'csv') {
+        // Needs testing 
         throw new moodle_exception('invalid_file_type', 'mod_smartspe');
     }
+
     $content = $file->get_content();
 
-    global $DB;
+    $content = str_replace("\r", "\n", trim($content));
+        
+    $rows = array_map(function($line) {
+        return str_getcsv($line, ',', '"', '\\');
+    }, explode("\n", trim($content)));
 
-    $rows = array_map('str_getcsv', explode("\n", trim($content)));
     if (count($rows) <= 1) {
         throw new moodle_exception('empty_or_invalid_csv', 'mod_smartspe');
     }
@@ -126,19 +131,10 @@ function spe_handle_csv($data , $speid){
             continue;
         }
 
-        // Insert into smartspe_group
-        $groupid = $DB->insert_record('smartspe_group', (object)[
-            'spe_id' => $speid,
-            'name' => $groupname
-        ]);
-
-        // Insert into smartspe_group_member
-        foreach ($userids as $uid) {
-            $DB->insert_record('smartspe_group_member', (object)[
-                'group_id' => $groupid,
-                'user_id' => (int)$uid
-            ]);
-        }
+        $groups[$groupname] = [
+            'name' => $groupname,
+            'userids' => $userids
+        ];
 
         $groupnamemap[$lowername] = true;
     }
@@ -148,13 +144,13 @@ function spe_handle_csv($data , $speid){
         throw new moodle_exception('no_valid_groups', 'mod_smartspe');
     }   
 
+    return $groups;
+
 }
 
 function smartspe_add_instance($data, $mform = null){
 
-
     global $DB;
-
     try {
         $transaction = $DB->start_delegated_transaction();
 
@@ -168,6 +164,8 @@ function smartspe_add_instance($data, $mform = null){
         $activity->course_id = $data->course;
         $speid = $DB->insert_record('smartspe', $activity);
 
+        $groups = spe_handle_csv($data, $speid);
+
         // Now handle the questions
         
         foreach ($data->questions as $i => $questiontext) {
@@ -179,37 +177,25 @@ function smartspe_add_instance($data, $mform = null){
                 $question->text = $questiontext;
                 $DB->insert_record('smartspe_question', $question);
             }
-        }   
-
-        
-        spe_handle_csv($data,$speid);
-        
-        exit;
-        
-        // Insert group members for now (hardcoded)        
-
-        $groupid = $DB->insert_record('smartspe_group', (object)[
-            'spe_id' => $speid,
-            'name' => 'SPE Group 1'
-        ]);
-        $members = [3,4,5,6,7];
-        foreach ($members as $memberid) {
-            $DB->insert_record('smartspe_group_member', (object)[
-                'group_id' => $groupid,
-                'user_id' => $memberid
-            ]);
-        }
-
-       
+        }        
+        foreach ($groups as $groupdata) {
+            $group = new stdClass();
+            $group->spe_id = $speid;
+            $group->name = $groupdata['name'];
+            $groupid = $DB->insert_record('smartspe_group', $group);
+            foreach ($groupdata['userids'] as $uid) {
+                $member = (object)[
+                    'group_id' => $groupid,
+                    'user_id' => $uid,
+                ];
+                $DB->insert_record('smartspe_group_member', $member );
+            }
+        }        
         $transaction->allow_commit(); 
         return $speid; 
     } catch (\Throwable $th) {
-        $transaction->rollback($th);
         throw $th;
     }
-    
- 
-
 
 };
 
