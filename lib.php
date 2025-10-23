@@ -161,7 +161,7 @@ function smartspe_add_instance($data, $mform = null){
         $activity->created_by = 2; // Admin user id for testing , need to remove this
         $activity->start_date = $data->start_date;
         $activity->end_date = $data->end_date;
-        $activity->course_id = $data->course;
+        $activity->course = $data->course;
         $speid = $DB->insert_record('smartspe', $activity);
 
         $groups = spe_handle_csv($data, $speid);

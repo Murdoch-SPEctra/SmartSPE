@@ -7,7 +7,7 @@
     <TABLE NAME="smartspe" COMMENT="Table for SPE_Activity">
       <FIELDS>
         <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true"/>
-        <FIELD NAME="course_id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false"/>
+        <FIELD NAME="course" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false"/>
         <FIELD NAME="name" TYPE="char" LENGTH="255" NOTNULL="true" SEQUENCE="false"/>
         <FIELD NAME="description" TYPE="text" NOTNULL="true" SEQUENCE="false"/>
         <FIELD NAME="start_date" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false"/>
@@ -15,7 +15,7 @@
       </FIELDS>
       <KEYS>
         <KEY NAME="primary" TYPE="primary" FIELDS="id"/>
-        <KEY NAME="course_id_fk" TYPE="foreign" FIELDS="course_id" REFTABLE="course" REFFIELDS="id"/>
+        <KEY NAME="course_fk" TYPE="foreign" FIELDS="course" REFTABLE="course" REFFIELDS="id"/>
       </KEYS>
     </TABLE>
     <TABLE NAME="smartspe_group" COMMENT="Table for SPE_Group">
@@ -31,11 +31,12 @@
     </TABLE>
     <TABLE NAME="smartspe_group_member" COMMENT="Table for SPE_Group_Member">
       <FIELDS>
+        <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true"/>
         <FIELD NAME="group_id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false"/>
         <FIELD NAME="user_id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false"/>
       </FIELDS>
       <KEYS>
-        <KEY NAME="primary" TYPE="primary" FIELDS="group_id, user_id"/>
+        <KEY NAME="primary" TYPE="primary" FIELDS="id"/>
         <KEY NAME="group_id_fk" TYPE="foreign" FIELDS="group_id" REFTABLE="smartspe_group" REFFIELDS="id"/>
         <KEY NAME="user_id_fk" TYPE="foreign" FIELDS="user_id" REFTABLE="user" REFFIELDS="id"/>
       </KEYS>
@@ -87,6 +88,7 @@
         <FIELD NAME="submission_id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false"/>
         <FIELD NAME="target_id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false"/>
         <FIELD NAME="comment" TYPE="text" NOTNULL="true" SEQUENCE="false"/>
+        <FIELD NAME="sentiment" TYPE="char" LENGTH="10" NOTNULL="false" SEQUENCE="false"/>
       </FIELDS>
       <KEYS>
         <KEY NAME="primary" TYPE="primary" FIELDS="id"/>
@@ -103,17 +105,6 @@
       <KEYS>
         <KEY NAME="primary" TYPE="primary" FIELDS="id"/>
         <KEY NAME="submission_id_fk" TYPE="foreign" FIELDS="submission_id" REFTABLE="smartspe_submission" REFFIELDS="id"/>
-      </KEYS>
-    </TABLE>
-    <TABLE NAME="smartspe_sentiment" COMMENT="Table for SPE_Sentiment">
-      <FIELDS>
-        <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true"/>
-        <FIELD NAME="comment_id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false"/>
-        <FIELD NAME="sentiment" TYPE="char" LENGTH="10" NOTNULL="false" SEQUENCE="false"/>
-      </FIELDS>
-      <KEYS>
-        <KEY NAME="primary" TYPE="primary" FIELDS="id"/>
-        <KEY NAME="comment_id_fk" TYPE="foreign" FIELDS="comment_id" REFTABLE="smartspe_comment" REFFIELDS="id"/>
       </KEYS>
     </TABLE>
   </TABLES>
