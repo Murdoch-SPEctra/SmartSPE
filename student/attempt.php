@@ -25,6 +25,7 @@
 require(__DIR__ . '/../../../config.php');
 require_once(__DIR__ . '/../lib.php');
 require_once(__DIR__ . '/../classes/form/attempt_form.php');
+require_once(__DIR__ . '/../locallib.php');
 
 use mod_smartspe\form\attempt_form;
 
@@ -104,11 +105,12 @@ else if ($data = $mform->get_data()) {
     try {
         // Store data in DB
         $timenow = time();
-        $submission = new stdClass();
-        $submission->spe_id = $smartspe->id;
-        $submission->student_id = $USER->id;
-        $submission->last_saved_at = $timenow;
-        $submission->submitted_at = $timenow;
+        $submission = (object)[
+            'spe_id' => $smartspe->id,
+            'student_id' => $USER->id,
+            'last_saved_at' => $timenow,
+            'submitted_at' => $timenow            
+        ];
 
         $transaction = $DB->start_delegated_transaction();
 
@@ -116,24 +118,29 @@ else if ($data = $mform->get_data()) {
 
         foreach ($data->rating as $targetid => $questions) {
             foreach ($questions as $questionid => $score) {
-                $answer = new stdClass();
-                $answer->submission_id = $submission->id;
-                $answer->question_id = $questionid;
-                $answer->target_id = $targetid;
-                $answer->score = $score;
+                $answer = (object)[
+                    'submission_id' => $submission->id,
+                    'question_id' => $questionid,
+                    'target_id' => $targetid,
+                    'score' => $score
+                ];
                 $DB->insert_record('smartspe_answer', $answer);
             }
         }
         foreach ($data->comment as $targetid => $commenttext) {
-            $comment = new stdClass();
-            $comment->submission_id = $submission->id;
-            $comment->target_id = $targetid;
-            $comment->comment = $commenttext;
+            $comment = (object)[
+                'submission_id' => $submission->id,
+                'target_id' => $targetid,
+                'comment' => $commenttext,
+                'sentiment' => smartspe_get_sentiment($commenttext)
+            ];
+            
             $DB->insert_record('smartspe_comment', $comment);
         }
-        $selfreflect = new stdClass();
-        $selfreflect->submission_id = $submission->id;
-        $selfreflect->reflection = $data->selfreflect;
+        $selfreflect = (object)[
+            'submission_id' => $submission->id,
+            'reflection' => $data->selfreflect
+        ];
         $DB->insert_record('smartspe_selfreflect', $selfreflect);
 
         $transaction->allow_commit(); 
