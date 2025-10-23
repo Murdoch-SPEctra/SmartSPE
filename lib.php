@@ -199,3 +199,45 @@ function smartspe_add_instance($data, $mform = null){
 
 };
 
+function smartspe_delete_instance($speid) {
+    global $DB;
+
+    try{
+        $transaction = $DB->start_delegated_transaction();
+        // Get all related groups
+        $groups = $DB->get_records('smartspe_group', ['spe_id' => $speid]);
+        foreach ($groups as $group) {
+            // Delete members first
+            $DB->delete_records('smartspe_group_member', ['group_id' => $group->id]);
+            // Delete the group
+            $DB->delete_records('smartspe_group', ['id' => $group->id]);
+        }
+
+        // Delete questions
+        $DB->delete_records('smartspe_question', ['spe_id' => $speid]);
+
+        // Get all submissions
+
+        $submissions = $DB->get_records('smartspe_submission', ['spe_id' => $speid]);
+
+        foreach ($submissions as $submission) {
+            $sid = $submission->id;
+            // Delete answers first
+            $DB->delete_records('smartspe_answer', ['submission_id' => $sid]);
+            // Delete self reflection
+            $DB->delete_records('smartspe_self_reflection', ['submission_id' => $sid]);
+            // Delete comments
+            $DB->delete_records('smartspe_comment', ['submission_id' => $sid]);
+            // Delete the submission
+            $DB->delete_records('smartspe_submission', ['id' => $sid]);
+        }
+        // Delete the main activity
+        $DB->delete_records('smartspe', ['id' => $speid]);
+       
+        $transaction->allow_commit();
+        return true;
+
+    } catch (\Throwable $th) {
+        throw $th;
+    }
+}
