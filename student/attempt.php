@@ -29,7 +29,6 @@ require_once(__DIR__ . '/../locallib.php');
 
 use mod_smartspe\form\attempt_form;
 
-// For testing, we assume the course module ID is passed via URL
 $id = required_param('id', PARAM_INT); // Course module id
 
 global $DB, $OUTPUT, $PAGE, $USER;
@@ -55,16 +54,19 @@ if (!$group) {
 }
 
 // Check if they already submitted then error cuz no 2nd attempts
+// And check if its not a draft submission
 $submission = $DB->get_record('smartspe_submission', [
     'spe_id' => $smartspe->id,
     'student_id' => $USER->id
 ]);
-if ($submission) {
+if ($submission && $submission->submitted_at) {
     throw new moodle_exception('alreadyattempted', 'mod_smartspe');
+}else if (time() > $smartspe->end_date) {
+    throw new moodle_exception('spe_ended', 'mod_smartspe');
 }
 
 // Pull group members excluding current user
-$sql = "SELECT u.id, CONCAT(u.firstname, ' ', u.lastname) AS fullname
+$sql = "SELECT u.id, CONCAT(u.firstname, ' ', u.lastname) AS fullname, u.email
         FROM {user} u
         JOIN {smartspe_group_member} gm ON u.id = gm.user_id
         WHERE gm.group_id = :gid AND u.id != :uid
@@ -76,11 +78,14 @@ $members = $DB->get_records_sql($sql, ['gid' => $group->id, 'uid' => $USER->id])
 $questions = $DB->get_records('smartspe_question',
             ['spe_id' => $smartspe->id], 'sort_order ASC'
 );
-
-// $customdata = require(__DIR__ . '/tests/attempt_form.php'); // For testing
-
+// Not displaying studentids in forms
+// foreach ($members as $member) {
+        // Add displaystudentid property
+        //$member->displaystudentid = smartspe_get_studentid_from_email($member->email);
+// }
 $customdata = [
     'userid'    => $USER->id,
+    'displaystudentid' => smartspe_get_studentid_from_email($USER->email),
     'cmid'      => $cm->id,
     'speid'     => $smartspe->id,
     'spe_name'  => $smartspe->name,
@@ -127,12 +132,19 @@ else if ($data = $mform->get_data()) {
                 $DB->insert_record('smartspe_answer', $answer);
             }
         }
+        $payload = [];
+        foreach ($data->comment as $targetid => $commenttext) {
+            $payload[$targetid] = $commenttext;
+        }
+        $sentiments = smartspe_get_sentiment_batch($payload);
+        
         foreach ($data->comment as $targetid => $commenttext) {
             $comment = (object)[
                 'submission_id' => $submission->id,
                 'target_id' => $targetid,
                 'comment' => $commenttext,
-                'sentiment' => smartspe_get_sentiment($commenttext)
+                'sentiment' => $sentiments[$targetid] ?? null 
+                // May be null if sentiment API failed
             ];
             
             $DB->insert_record('smartspe_comment', $comment);
