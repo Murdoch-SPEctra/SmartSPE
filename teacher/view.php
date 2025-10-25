@@ -78,13 +78,6 @@ foreach ($teams as $team) {
     ];
 }
 
-// Insert some teamdata for testing
-$teamdata[] = [
-    'name' => 'Hardcoded Team ',
-    'viewurl' => new moodle_url('#'),
-    'csvurl' => new moodle_url('#'),
-    'disabled' => true,
-];
 $editurl = new moodle_url('/course/modedit.php', ['update' => $cm->id, 'return' => 1]);
 
 

@@ -25,16 +25,29 @@
  // Student view.
     echo $OUTPUT->heading('Student view', 3);
 
-    // Show questions preview (optional).
-    if ($questions) {
-        echo $OUTPUT->heading('You will be asked to rate on:', 4);
-        $list = html_writer::start_tag('ul');
-        foreach ($questions as $q) {
-            $list .= html_writer::tag('li', format_string($q->text));
-        }
-        $list .= html_writer::end_tag('ul');
-        echo $list;
+    echo $OUTPUT->header();
+echo $OUTPUT->heading(format_string($smartspe->name));
+
+    // Description.
+    if (!empty($smartspe->description)) {
+        echo html_writer::div(format_text($smartspe->description, FORMAT_PLAIN, ['context' => $context]), 'mod-smartspe-desc');
     }
+
+    // Availability info.
+    $now = time();
+    $start = (int)($smartspe->start_date ?? 0);
+    $end   = (int)($smartspe->end_date ?? 0);
+
+    if ($start && $now < $start) {
+        echo $OUTPUT->notification('Not open yet. Opens: ' . userdate($start), 'info');
+    } else if ($end && $now > $end) {
+        echo $OUTPUT->notification('Closed. Closed on: ' . userdate($end), 'warning');
+    } else if ($start || $end) {
+        $msg = [];
+        if ($start) { $msg[] = 'Opens: ' . userdate($start); }
+        if ($end)   { $msg[] = 'Closes: ' . userdate($end); }
+        echo $OUTPUT->notification(implode(' | ', $msg), 'info');
+    }  
 
     // Call-to-action button (placeholder target for now).
     $open = (!$start || $now >= $start) && (!$end || $now <= $end);
