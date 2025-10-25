@@ -24,4 +24,14 @@
 
 defined('MOODLE_INTERNAL') || die();
 
-$tasks = [];
+$tasks = [
+    [
+        'classname' => 'mod_smartspe\task\sentiment_task',
+        'blocking' => 0,
+        'minute' => '*', // every minute
+        'hour' => '*',
+        'day' => '*',
+        'dayofweek' => '*',
+        'month' => '*'
+    ]
+];
