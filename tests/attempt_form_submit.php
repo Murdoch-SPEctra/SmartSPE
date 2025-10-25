@@ -1,4 +1,7 @@
 <?php
+
+// avoid direct access
+defined('MOODLE_INTERNAL') || die('Direct access to this script is forbidden.');
 // The format
 // // is [
 //     'rating' => [
