@@ -26,17 +26,25 @@
 
 defined('MOODLE_INTERNAL') || die();
 
-function smartspe_get_sentiment($commenttext) {
+function smartspe_get_sentiment_batch($comments) {
     global $CFG;
 
-    $url = 'http://localhost:5000/getsentiment'; // hardcoded for now
-    $payload = json_encode(['comment' => $commenttext]);
+
+    // Prepare payload: numeric keys => comment text
+    $payloadData = [];
+    foreach ($comments as $key => $comment) {
+        $payloadData[$key] = $comment;
+    }
+
+    $url = 'http://localhost:5000/getsentiment';
+    $payload = json_encode($payloadData);
+
     $options = [
         'http' => [
             'method'  => 'POST',
             'header'  => "Content-Type: application/json\r\n",
             'content' => $payload,
-            'timeout' => 2, // seconds (don’t hang forever)
+            'timeout' => 2,
         ],
     ];
 
@@ -52,13 +60,22 @@ function smartspe_get_sentiment($commenttext) {
         if (json_last_error() !== JSON_ERROR_NONE) {
             throw new Exception('Invalid JSON from sentiment API');
         }
-        debugging ("Sentiment API response: " . print_r($result, true), DEBUG_DEVELOPER);
 
-        return $result['sentiment'] ?? null;
+        // $result should be: 0 => sentiment, 1 => sentiment, etc.
+        return $result;
 
-    } catch (Throwable $e) {
-        // Only log in developer/debug mode.
+    } catch (\Throwable $e) {
         debugging("Sentiment API error: " . $e->getMessage(), DEBUG_DEVELOPER);
-        return null;
+        mtrace( "Sentiment API error: " . $e->getMessage() );
+        return [];
     }
+}
+
+function smartspe_get_studentid_from_email(string $email): string {
+    $pos = strpos($email, '@');
+    if ($pos === false) {
+        // Email doesn’t have the expected pattern.
+        return 'Unknown ID';
+    }
+    return substr($email, 0, $pos);
 }
