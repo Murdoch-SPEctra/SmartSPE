@@ -102,7 +102,7 @@ function spe_handle_csv($data , $speid){
 
     // Extract and validate header
     $header = array_map('trim', array_shift($rows));
-    if (strtolower($header[0]) !== 'group name') {
+    if (strtolower($header[0]) !== 'groupname') {
         throw new moodle_exception('invalid_csv_header', 'mod_smartspe');
     }
 
@@ -113,6 +113,8 @@ function spe_handle_csv($data , $speid){
             continue;
         }
 
+        $line_no = $i + 2; // +2 for header and 0-based index
+
         $groupname = trim($cols[0]);
         if ($groupname === '') {
             continue;
@@ -121,19 +123,37 @@ function spe_handle_csv($data , $speid){
         // Check for duplicate group names (case-insensitive)
         $lowername = strtolower($groupname);
         if (isset($groupnamemap[$lowername])) {
-            continue;
+            $msgdata = (object)[
+                'name' => $groupname,
+                'line' => $line_no,
+            ];
+            throw new moodle_exception('duplicategroupname',
+                         'mod_smartspe', '', $msgdata);
         }
 
-        $userids = array_slice($cols, 1);
-        $userids = array_filter(array_map('trim', $userids), fn($u) => $u !== '');
+        $studentids = array_slice($cols, 1);
+        $studentids = array_filter(array_map('trim', $studentids), fn($u) => $u !== '');
 
-        if (count($userids) === 0) {
-            continue;
+        if (count($studentids) === 0) {
+            throw new moodle_exception('empty_group', 'mod_smartspe');
+        }
+
+        foreach ($studentids as $sid) {
+        if (isset($studentmap[$sid])) {
+            // Found duplicate student ID in another group.
+            $prevline = $studentmap[$sid];
+            $msgdata = (object)[
+                'sid' => $sid,
+                'line' => $line,
+            ];
+            throw new moodle_exception('duplicatestudentingroup', 'mod_smartspe', '', $msgdata);
+        }
+        $studentmap[$sid] = $line;
         }
 
         $groups[$groupname] = [
             'name' => $groupname,
-            'userids' => $userids
+            'studentids' => $studentids
         ];
 
         $groupnamemap[$lowername] = true;
@@ -183,12 +203,24 @@ function smartspe_add_instance($data, $mform = null){
             $group->spe_id = $speid;
             $group->name = $groupdata['name'];
             $groupid = $DB->insert_record('smartspe_group', $group);
-            foreach ($groupdata['userids'] as $uid) {
+            
+            foreach ($groupdata['studentids'] as $studentid) {
+                $email = $studentid . '@student.murdoch.edu.au';
+
+                // Fetch the Moodle user by email.
+                $user = $DB->get_record('user',
+                             ['email' => $email, 'deleted' => 0],
+                              'id', IGNORE_MISSING);
+                if (!$user) {
+                    throw new moodle_exception('invalidstudentid',
+                         'mod_smartspe', '', $studentid);
+                }
+
                 $member = (object)[
                     'group_id' => $groupid,
-                    'user_id' => $uid,
+                    'user_id' => $user->id,
                 ];
-                $DB->insert_record('smartspe_group_member', $member );
+                $DB->insert_record('smartspe_group_member', $member);
             }
         }        
         $transaction->allow_commit(); 
@@ -235,9 +267,11 @@ function smartspe_delete_instance($speid) {
         $DB->delete_records('smartspe', ['id' => $speid]);
        
         $transaction->allow_commit();
+        mtrace("SmartSPE instance {$speid} and all related data deleted.");
         return true;
 
     } catch (\Throwable $th) {
+        mtrace("Error deleting SmartSPE instance {$speid}: " . $th->getMessage());
         throw $th;
     }
 }

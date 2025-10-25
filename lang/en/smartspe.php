@@ -79,3 +79,15 @@ $string['alreadyattempted'] = 'You have already submitted your response for this
 $string['spe_notended'] = 'This SmartSPE evaluation has not ended yet.';
 $string['spe_notsubmitted'] = 'This submission has not been submitted.';
 $string['groupnotfound'] = 'You are not assigned to any group for this activity. Please contact your instructor.';
+$string['spe_ended'] = 'This SmartSPE evaluation has already ended. You can no longer submit responses.';
+$string['invalidstudentid'] = 'Unknown student ID: {$a}';
+$string['file_not_saved'] = 'File could not be saved. Please try again.';
+$string['empty_or_invalid_csv'] = 'The uploaded CSV file is empty or invalid. Please check the file and try again.';
+$string['invalid_file_type'] = 'Invalid file type. Please upload a CSV file.';
+$string['invalid_csv_header'] = 'Invalid CSV header. The first column must be "GroupName".';
+$string['duplicategroupname'] = 'Duplicate group name detected: {$a->name} on line {$a->line}';
+$string['duplicatestudentingroup'] = 'Student ID {$a->sid} appears again (line {$a->line}) in another group.';
+$string['empty_group'] = 'A group with no student IDs was found. Please ensure all groups have at least one student.';  
+$string['no_valid_groups'] = 'No valid groups were found in the uploaded CSV file. Please check the file and try again.';
+// Scheduled task
+$string['sentiment_task'] = 'SmartSPE Sentiment Analysis Task';
