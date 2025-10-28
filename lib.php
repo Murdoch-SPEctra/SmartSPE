@@ -37,9 +37,9 @@ function smartspe_supports($feature) {
         case FEATURE_SHOW_DESCRIPTION:
             return true; // Test this 
         case FEATURE_BACKUP_MOODLE2:
-            return true;
+            return false;
         case FEATURE_USES_QUESTIONS:
-            return true;
+            return false;
         case FEATURE_GROUPS:
             return false;
         case FEATURE_GROUPINGS:
@@ -139,16 +139,15 @@ function spe_handle_csv($data , $speid){
         }
 
         foreach ($studentids as $sid) {
-        if (isset($studentmap[$sid])) {
-            // Found duplicate student ID in another group.
-            $prevline = $studentmap[$sid];
-            $msgdata = (object)[
-                'sid' => $sid,
-                'line' => $line,
-            ];
-            throw new moodle_exception('duplicatestudentingroup', 'mod_smartspe', '', $msgdata);
-        }
-        $studentmap[$sid] = $line;
+            if (isset($studentmap[$sid])) {
+                // Found duplicate student ID in another group.
+                $prevline = $studentmap[$sid];
+                $msgdata = (object)[
+                    'sid' => $sid,
+                    'line' => $line,
+                ];
+                throw new moodle_exception('duplicatestudentingroup', 'mod_smartspe', '', $msgdata);
+            }    
         }
 
         $groups[$groupname] = [
@@ -184,6 +183,8 @@ function smartspe_add_instance($data, $mform = null){
         $activity->course = $data->course;
         $speid = $DB->insert_record('smartspe', $activity);
 
+        $context = context_module::instance($data->coursemodule);
+
         $groups = spe_handle_csv($data, $speid);
 
         // Now handle the questions
@@ -214,6 +215,18 @@ function smartspe_add_instance($data, $mform = null){
                 if (!$user) {
                     throw new moodle_exception('invalidstudentid',
                          'mod_smartspe', '', $studentid);
+                }
+                $isenrolled = is_enrolled($context, $USER->id);
+                
+
+                if (!$isenrolled) {
+                    // Give student id and name
+                    $msgdata = (object)[
+                        'sid' => $studentid,
+                        'name' => fullname($user),
+                    ];
+                    throw new moodle_exception('studentnotenrolled',
+                         'mod_smartspe', '', $msgdata);
                 }
 
                 $member = (object)[
