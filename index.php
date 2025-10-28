@@ -23,5 +23,12 @@
  */
 
 require_once(__DIR__ . '/../../config.php');
-require_once(__DIR__ . '/lib.php');
 
+$courseid = required_param('id', PARAM_INT);
+
+$course = get_course($courseid);
+
+// Redirect to course page and say no index page 
+
+$redirecturl = new moodle_url('/course/view.php', ['id' => $courseid]);
+redirect($redirecturl, get_string('noindexpage', 'mod_smartspe'));
