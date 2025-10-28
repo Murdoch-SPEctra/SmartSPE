@@ -236,34 +236,31 @@ function smartspe_delete_instance($speid) {
 
     try{
         $transaction = $DB->start_delegated_transaction();
-        // Get all related groups
-        $groups = $DB->get_records('smartspe_group', ['spe_id' => $speid]);
-        foreach ($groups as $group) {
-            // Delete members first
-            $DB->delete_records('smartspe_group_member', ['group_id' => $group->id]);
-            // Delete the group
-            $DB->delete_records('smartspe_group', ['id' => $group->id]);
-        }
+
+        $DB->delete_records_select('smartspe_group_member',
+         'group_id IN (SELECT id FROM {smartspe_group} WHERE spe_id = ?)', [$speid]);
+
+        $DB->delete_records('smartspe_group', ['spe_id' => $speid]);
+       
 
         // Delete questions
         $DB->delete_records('smartspe_question', ['spe_id' => $speid]);
 
-        // Get all submissions
+         // Delete all answers, comments, self reflections in batch
+        $DB->delete_records_select('smartspe_answer',
+             'submission_id IN (SELECT id FROM {smartspe_submission} WHERE spe_id = ?)',
+             [$speid]);
+        $DB->delete_records_select('smartspe_self_reflection',
+             'submission_id IN (SELECT id FROM {smartspe_submission} WHERE spe_id = ?)',
+             [$speid]);
+        $DB->delete_records_select('smartspe_comment',
+             'submission_id IN (SELECT id FROM {smartspe_submission} WHERE spe_id = ?)',
+             [$speid]);
 
-        $submissions = $DB->get_records('smartspe_submission', ['spe_id' => $speid]);
+        // Delete all submissions at once
+        $DB->delete_records('smartspe_submission', ['spe_id' => $speid]);
 
-        foreach ($submissions as $submission) {
-            $sid = $submission->id;
-            // Delete answers first
-            $DB->delete_records('smartspe_answer', ['submission_id' => $sid]);
-            // Delete self reflection
-            $DB->delete_records('smartspe_self_reflection', ['submission_id' => $sid]);
-            // Delete comments
-            $DB->delete_records('smartspe_comment', ['submission_id' => $sid]);
-            // Delete the submission
-            $DB->delete_records('smartspe_submission', ['id' => $sid]);
-        }
-        // Delete the main activity
+        // Finally delete the main activity
         $DB->delete_records('smartspe', ['id' => $speid]);
        
         $transaction->allow_commit();
