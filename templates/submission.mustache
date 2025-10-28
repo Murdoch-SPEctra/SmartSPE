@@ -15,7 +15,7 @@
                 <small class="text-muted">Student ID: {{studentid}}</small>
             </div>            
         </div>
-        <div class="collapse show" id="member-{{userid}}">
+        <div class="collapse show" id="member-{{studentid}}">
             <div class="card-body">
                 <div class="criteria-ratings mb-4">
                     <h6>Criteria Ratings</h6>
@@ -58,8 +58,15 @@
                 
                 <div class="comments py-1">
                     <h6>Comments:</h6>
-                    <div class="border rounded p-3 fst-italic text-muted">
-                        "{{comment}}"
+                    <div class="border rounded p-3">
+                        <div class="d-flex align-items-center justify-content-between">
+                            <span class="fst-italic text-muted">
+                                {{comment}}
+                            </span>
+                            <span class="badge {{senticlass}} ms-2">
+                                {{sentiment}}
+                            </span>
+                        </div>
                     </div>
                 </div>                
             </div>

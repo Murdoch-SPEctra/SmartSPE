@@ -25,6 +25,7 @@
 // Teacher Submission view for a SmartSPE activity .
     
 require(__DIR__ . '/../../../config.php');
+require(__DIR__ . '/../locallib.php');
 
 global $DB, $OUTPUT, $PAGE, $USER;
 
@@ -84,10 +85,16 @@ $selfreflect = $DB->get_record('smartspe_selfreflect', ['submission_id' => $subm
 
 $template_data = [
     'viewingsubmissionfor' => get_string('viewingsubmissionfor', 'mod_smartspe', 
-                (object)['fullname' => fullname($user), 'studentid' => $user->idnumber]),
+                (object)['fullname' => fullname($user),
+                 'studentid' => smartspe_get_studentid_from_email($user->email)]
+                ),
     'members' => []
 ];      
-
+usort($group_members, function($a, $b) use ($submission) {
+    if ($a->user_id == $submission->student_id) return -1; // $a before $b
+    if ($b->user_id == $submission->student_id) return 1;  // $b before $a
+    return 0;                                              // leave order
+});
 
 foreach ($group_members as $member) {
     $user = $DB->get_record('user', ['id' => $member->user_id] , '*', MUST_EXIST);  
@@ -137,9 +144,18 @@ foreach ($group_members as $member) {
 
     // Comment for this member
     $member_comment = '';
+    $senticlass = '';
+    $sentiment = '';
     foreach ($comments as $comment) {
         if ($comment->target_id == $member->user_id) {
             $member_comment = $comment->comment;
+            $sentiment = $comment->sentiment;
+            $senticlass = match ($sentiment) {
+                'Positive' => 'bg-success-subtle text-success border border-success',
+                'Negative' => 'bg-danger-subtle text-danger border border-danger',
+                'Neutral'  => 'bg-warning-subtle text-warning border border-warning',
+                default    => 'bg-secondary-subtle text-body-secondary border border-secondary',
+            };
             break;
         }
     }
@@ -154,11 +170,13 @@ foreach ($group_members as $member) {
     $template_data['members'][] = [
         'userid' => $user->id,
         'fullname' => fullname($user),
-        'studentid' => $user->idnumber,
+        'studentid' => smartspe_get_studentid_from_email($user->email),
         'profilepic' => $imageURL,
         'criteriaRow1' => $criteriaRow1,
         'criteriaRow2' => $criteriaRow2,
-        'comment' => $member_comment,        
+        'comment' => $member_comment,  
+        'senticlass' => $senticlass,    
+        'sentiment' => $sentiment,
         'isself' => $is_self,
         'selfreflect' => $reflection, // only for self but included as null otherwise
     ];
