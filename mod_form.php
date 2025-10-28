@@ -16,7 +16,7 @@
 
 /**
  * Form definition for adding/updating Self & Peer Evaluation (SmartSPE) instances.
- * Redesigned per updated spec: CSV group upload, 2–5 Likert questions with optional nicknames,
+ * Redesigned per updated spec: CSV group upload, 2–5 Likert questions,
  * start/end scheduling and minimal core module options.
  *
  * @package     mod_smartspe
@@ -34,9 +34,7 @@ class mod_smartspe_mod_form extends moodleform_mod {
      * Defines forms elements.
      */
     public function definition() {
-        $mform = $this->_form;
-
-        
+        $mform = $this->_form;        
 
         // Activity core settings.
         $mform->addElement('header', 'generalhdr', get_string('general')); 
@@ -60,9 +58,6 @@ class mod_smartspe_mod_form extends moodleform_mod {
 
         // Set type to clean text
         $mform->setType('desc', PARAM_TEXT);
-        
-
-        
 
         // Availability scheduling.
         $mform->addElement('header', 'availabilityhdr', get_string('availability', 'mod_smartspe'));
@@ -144,6 +139,15 @@ class mod_smartspe_mod_form extends moodleform_mod {
             $val = trim((string)$val);
             if ($i <= 2 && $val === '') {
                 $errors["questions[$i]"] = get_string('required');
+            }
+        }
+
+        // Make sure the questions are filled sequentially 
+        for ($i = 2; $i <= 4; $i++) {
+            $current = trim((string)($data['questions'][$i] ?? ''));
+            $next = trim((string)($data['questions'][$i + 1] ?? ''));
+            if ($current === '' && $next !== '') {
+                $errors["questions[" . ($i + 1) . "]"] = get_string('error_sequentialquestions', 'mod_smartspe');
             }
         }
 
