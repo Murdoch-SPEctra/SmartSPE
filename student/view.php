@@ -23,10 +23,10 @@
  */
 
  // Student view.
-    echo $OUTPUT->heading('Student view', 3);
+//     echo $OUTPUT->heading('Student view', 3);
 
-    echo $OUTPUT->header();
-echo $OUTPUT->heading(format_string($smartspe->name));
+//     echo $OUTPUT->header();
+// echo $OUTPUT->heading(format_string($smartspe->name));
 
     // Description.
     if (!empty($smartspe->description)) {

@@ -36,8 +36,6 @@ require_login($course, true, $cm);
 
 $smartspe = $DB->get_record('smartspe', ['id' => $cm->instance], '*', MUST_EXIST);
 
-
-
 $context = context_module::instance($cm->id);
 require_capability('mod/smartspe:view', $context);
 
@@ -57,7 +55,8 @@ if ($completion->is_enabled($cm)) {
 // Detect role (teacher/manager vs student) using core capability.
 $isteacher = has_capability('moodle/course:manageactivities', $context);
 
-
+echo $OUTPUT->header();
+echo $OUTPUT->heading(format_string($smartspe->name));
 
 if ($isteacher) {
     require_once(__DIR__ . '/teacher/view.php');
