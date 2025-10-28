@@ -67,9 +67,9 @@ $teamdata = [];
 foreach ($teams as $team) {
     $viewurl = new moodle_url('/mod/smartspe/teacher/team_view.php',
         ['id' => $id, 'teamid' => $team->id]);
-    $csvurl = new moodle_url('/mod/smartspe/teacher/export_csv.php', 
+    $csvurl = new moodle_url('/mod/smartspe/teacher/export.php', 
         ['id' => $id, 'teamid' => $team->id]);
-
+    
     $teamdata[] = [
         'name' => $team->name,
         'viewurl' => $viewurl,
@@ -84,7 +84,6 @@ $editurl = new moodle_url('/course/modedit.php', ['update' => $cm->id, 'return' 
 // Pass data to template
 $templatecontext = [
     'teams' => $teamdata,
-    'editurl' => $editurl->out(false),
     'description' => $desc,
     'status' => $status,
     'statusclass' => $statusclass,    
