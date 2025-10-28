@@ -24,3 +24,16 @@
 
 defined('MOODLE_INTERNAL') || die;
 
+
+if ($hassiteconfig) {
+
+    // Add a setting for the API server
+    $settings->add(new admin_setting_configtext( 
+        'mod_smartspe/apiserver',               
+        get_string('apiserver', 'mod_smartspe'), 
+        get_string('apiserver_desc', 'mod_smartspe'), 
+        'http://localhost:5000',              
+        PARAM_URL                         
+    ));
+
+}

@@ -35,8 +35,8 @@ function smartspe_get_sentiment_batch($comments) {
     foreach ($comments as $key => $comment) {
         $payloadData[$key] = $comment;
     }
-
-    $url = 'http://localhost:5000/getsentiment';
+    $apiserver = get_config('mod_smartspe', 'apiserver');
+    $url = rtrim($apiserver, '/') . '/getsentiment';
     $payload = json_encode($payloadData);
 
     $options = [

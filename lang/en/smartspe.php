@@ -24,6 +24,10 @@
 
 $string['pluginname'] = 'SmartSPE'; // Generic plugin label sometimes used in admin trees.
 
+$string['apiserver'] = 'API Server URL';
+$string['apiserver_desc'] = 'The base URL of the sentiment analysis API (e.g., http://localhost:5000)';
+
+
 
 // Capability strings.
 $string['smartspe:view']   = 'View SmartSPE activity';
