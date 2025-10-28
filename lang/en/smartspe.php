@@ -36,6 +36,16 @@ $string['smartspe:addinstance'] = 'Add a new SmartSPE activity';
 
 // Required standard activity module strings.
 $string['modulename'] = 'Self and Peer Evaluation';
+$string['modulename_help'] = 'The Smart SPE activity allows students to evaluate themselves and their peers.
+
+**Features:**
+* Self and peer evaluations
+* Custom questions with 1-5 scale
+* Group management 
+* Analytics and reporting
+
+';
+$string['modulename_link'] = 'https://github.com/Murdoch-SPEctra/SmartSPE';
 $string['modulenameplural'] = 'Self and Peer Evaluations';
 $string['pluginadministration'] = 'Self and Peer Evaluation administration';
 
@@ -66,9 +76,6 @@ $string['error_endbeforestart'] = 'End date must be after start date.';
 $string['error_minquestions'] = 'At least two questions are required.';
 $string['error_question_gap'] = 'Remove gaps: fill earlier question(s) or clear this one.';
 $string['error_requiredquestion'] = 'This question text is required.';
-$string['error_nickwithoutquestion'] = 'Nickname supplied without a question.';
-$string['error_duplicate_nick'] = 'Duplicate nickname: {$a}';
-
 
 
 // Other strings.
@@ -80,6 +87,7 @@ $string['submissionsaved'] = 'Your response has been saved.';
 $string['alreadyattempted'] = 'You have already submitted your response for this activity.';
 
 // Errors
+$string['error_sequentialquestions'] = 'Please fill in questions sequentially without gaps.';
 $string['spe_notended'] = 'This SmartSPE evaluation has not ended yet.';
 $string['spe_notsubmitted'] = 'This submission has not been submitted.';
 $string['groupnotfound'] = 'You are not assigned to any group for this activity. Please contact your instructor.';
@@ -93,5 +101,8 @@ $string['duplicategroupname'] = 'Duplicate group name detected: {$a->name} on li
 $string['duplicatestudentingroup'] = 'Student ID {$a->sid} appears again (line {$a->line}) in another group.';
 $string['empty_group'] = 'A group with no student IDs was found. Please ensure all groups have at least one student.';  
 $string['no_valid_groups'] = 'No valid groups were found in the uploaded CSV file. Please check the file and try again.';
+$string['studentnotenrolled'] = 'Student ID {$a->sid} ({$a->name}) is not enrolled in this course.';
+$string['noindexpage'] = 'There is no index page for the SmartSPE activity. Please access it through the course page.';
+
 // Scheduled task
 $string['sentiment_task'] = 'SmartSPE Sentiment Analysis Task';
