@@ -63,6 +63,8 @@ if ($submission && $submission->submitted_at) {
     throw new moodle_exception('alreadyattempted', 'mod_smartspe');
 }else if (time() > $smartspe->end_date) {
     throw new moodle_exception('spe_ended', 'mod_smartspe');
+} else if(time() < $smartspe->start_date) {
+    throw new moodle_exception('spe_notstarted', 'mod_smartspe');
 }
 
 // Pull group members excluding current user
