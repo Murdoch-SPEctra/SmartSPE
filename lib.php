@@ -33,7 +33,7 @@ function smartspe_supports($feature) {
     // ../../lib/moodlelib.php line 406 for all features.
     switch($feature) {
         case FEATURE_MOD_INTRO:
-            return true;
+            return false;
         case FEATURE_SHOW_DESCRIPTION:
             return true; // Test this 
         case FEATURE_BACKUP_MOODLE2:
@@ -211,12 +211,12 @@ function smartspe_add_instance($data, $mform = null){
                 // Fetch the Moodle user by email.
                 $user = $DB->get_record('user',
                              ['email' => $email, 'deleted' => 0],
-                              'id', IGNORE_MISSING);
+                              'id, firstname, lastname', IGNORE_MISSING);
                 if (!$user) {
                     throw new moodle_exception('invalidstudentid',
                          'mod_smartspe', '', $studentid);
                 }
-                $isenrolled = is_enrolled($context, $USER->id);
+                $isenrolled = is_enrolled($context, $user->id);
                 
 
                 if (!$isenrolled) {
@@ -282,6 +282,101 @@ function smartspe_delete_instance($speid) {
 
     } catch (\Throwable $th) {
         mtrace("Error deleting SmartSPE instance {$speid}: " . $th->getMessage());
+        throw $th;
+    }
+}
+
+/**
+ * Update an existing SmartSPE instance.
+ *
+ * @param stdClass $data Form data (contains instance)
+ * @param mod_form $mform Optional form object
+ * @return bool true on success
+ */
+function smartspe_update_instance($data, $mform = null) {
+    global $DB, $USER;
+
+    $speid = (int)$data->instance;
+    if(!empty($speid)) {
+        throw new moodle_exception('missinginstanceid', 'mod_smartspe');
+    }
+    try {
+        $transaction = $DB->start_delegated_transaction();
+
+        // Update main activity record.
+        $activity = (object)[
+            'id' => $speid,
+            'name' => $data->name,
+            'description' => $data->desc,
+            'start_date' => $data->start_date,
+            'end_date' => $data->end_date,
+        ];
+
+        $DB->update_record('smartspe', $activity);
+
+        // Remove existing groups and questions for this instance so we can re-import.
+        $DB->delete_records_select('smartspe_group_member',
+            'group_id IN (SELECT id FROM {smartspe_group} WHERE spe_id = ?)', [$speid]);
+
+        $DB->delete_records('smartspe_group', ['spe_id' => $speid]);
+
+        $DB->delete_records('smartspe_question', ['spe_id' => $speid]);
+
+        // If a CSV was uploaded, parse and save groups; spe_handle_csv will validate and save the file.
+        $groups = spe_handle_csv($data, $speid);
+
+        // Recreate questions from submitted form data (if any)
+        if (!empty($data->questions) && is_array($data->questions)) {
+            foreach ($data->questions as $i => $questiontext) {
+                $questiontext = trim((string)$questiontext);
+                if ($questiontext !== '') {
+                    $question = (object)[
+                        'spe_id' => $speid,
+                        'sort_order' => (int)$i,
+                        'text' => $questiontext,
+                    ];
+                    $DB->insert_record('smartspe_question', $question);
+                }
+            }
+        }
+
+        // Insert groups and members
+        $context = context_module::instance($data->coursemodule);
+        foreach ($groups as $groupdata) {
+            $group = (object)[
+                'spe_id' => $speid,
+                'name' => $groupdata['name'],
+            ];
+            $groupid = $DB->insert_record('smartspe_group', $group);
+
+            foreach ($groupdata['studentids'] as $studentid) {
+                $email = $studentid . '@student.murdoch.edu.au';
+                $user = $DB->get_record('user', ['email' => $email, 'deleted' => 0], 'id', IGNORE_MISSING);
+                if (!$user) {
+                    throw new moodle_exception('invalidstudentid', 'mod_smartspe', '', $studentid);
+                }
+
+                $isenrolled = is_enrolled($context, $user->id);
+                if (!$isenrolled) {
+                    $msgdata = (object)[
+                        'sid' => $studentid,
+                        'name' => fullname($user),
+                    ];
+                    throw new moodle_exception('studentnotenrolled', 'mod_smartspe', '', $msgdata);
+                }
+
+                $member = (object)[
+                    'group_id' => $groupid,
+                    'user_id' => $user->id,
+                ];
+                $DB->insert_record('smartspe_group_member', $member);
+            }
+        }
+
+        $transaction->allow_commit();
+        return true;
+    } catch (\throwable $th) {
+        // Re-throw so caller can handle and Moodle will rollback transaction.
         throw $th;
     }
 }
