@@ -99,6 +99,6 @@ foreach ($members as $member) {
 }
 
 
-echo $OUTPUT->render_from_template('mod_smartspe/grouplist', $template_data);
+echo $OUTPUT->render_from_template('mod_smartspe/team_view', $template_data);
 
 echo $OUTPUT->footer();

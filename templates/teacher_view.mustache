@@ -8,6 +8,27 @@
 <div class="alert alert-{{statusclass}}">{{status}}</div>
 {{/status}}
 
+<div class="team-box d-flex justify-content-between align-items-center border-bottom py-3">
+  <h5 class="mb-0">All Teams</h5>
+  <div>
+    {{#disabled}}    
+    <span 
+        data-bs-toggle="tooltip" 
+        data-bs-placement="top" 
+        title="Can't be accessed until the SPE activity ends">
+        <a href="#" class="btn btn-secondary btn-sm me-2 disabled opacity-50" tabindex="-1" aria-disabled="true">
+          Export All CSV
+        </a>
+    </span>
+    {{/disabled}}
+
+    {{^disabled}}    
+    <a href="{{{exportallurl}}}" class="btn btn-secondary btn-sm">
+        Export All CSV
+    </a>
+    {{/disabled}}
+  </div>
+</div>
 {{#teams}}
 <div class="team-box d-flex justify-content-between align-items-center border-bottom py-3">
   <h5 class="mb-0">{{name}}</h5>

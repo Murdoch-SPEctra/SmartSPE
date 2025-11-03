@@ -44,7 +44,6 @@ $end   = (int)($smartspe->end_date);
 // Disable if it before end
 $disabled = $now < $end; // Disable buttons if before end date
 
-
 $status = '';
 $statusclass = '';
 
@@ -86,6 +85,8 @@ $templatecontext = [
     'teams' => $teamdata,
     'description' => $desc,
     'status' => $status,
+    'disabled' => $disabled,
+    'exportallurl' => new moodle_url('/mod/smartspe/teacher/export.php', ['id' => $id]),
     'statusclass' => $statusclass,    
 ];
 echo $OUTPUT->render_from_template('mod_smartspe/teacher_view', $templatecontext);
