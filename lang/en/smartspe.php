@@ -36,13 +36,11 @@ $string['smartspe:addinstance'] = 'Add a new SmartSPE activity';
 
 // Required standard activity module strings.
 $string['modulename'] = 'Self and Peer Evaluation';
-$string['modulename_help'] = 'The Smart SPE activity allows students to evaluate themselves and their peers.
-
-**Features:**
-* Self and peer evaluations
-* Custom questions with 1-5 scale
-* Group management 
-* Analytics and reporting
+$string['modulename_help'] = '
+This activity allows team members to assess their own and the members contribution in a project.
+This was developed in ICT302: IT Professional Practice Project with Mr. Peter Cole as the client,
+ supervised by Ms. Noor Alkhateeb and the team includes Rabiya Saleh, Tercia Fernandes,
+  Gilchrist Tavares, Meagan Saldanha and Khushank Jain.
 
 ';
 $string['modulename_link'] = 'https://github.com/Murdoch-SPEctra/SmartSPE';
@@ -64,8 +62,9 @@ $string['questiongrouplabel'] = 'Question {$a}';
 $string['questionplaceholder'] = 'Question {$a} text';
 $string['questionnickplaceholder'] = 'Nickname';
 $string['groupsheading'] = 'Groups CSV';
-$string['groupsinstructions'] = 'Upload a CSV with columns: GroupName, StudentID. One student per row. Header row optional.';
+$string['groupsinstructions'] = 'Upload a CSV with columns: GroupName,StudentID1,StudentID2,StudentID3.... Header row required.';
 $string['groupscsv'] = 'Groups CSV file';
+$string['groupscsv_locked'] = 'Groups CSV is locked after the activity has started or submissions exist.';
 $string['commentsinfo_title'] = 'Comments requirement';
 $string['commentsinfo_body'] = 'Each student must enter self and peer comments. These are always collected and analysed for sentiment.';
 $string['file_not_saved'] = 'File could not be saved. Please try again.';
@@ -87,11 +86,13 @@ $string['submissionsaved'] = 'Your response has been saved.';
 $string['alreadyattempted'] = 'You have already submitted your response for this activity.';
 
 // Errors
+$string['missinginstanceid'] = 'Missing instance id in update.';
 $string['error_sequentialquestions'] = 'Please fill in questions sequentially without gaps.';
-$string['spe_notended'] = 'This SmartSPE evaluation has not ended yet.';
+$string['spe_notstarted'] = 'This SPE has not started yet.';
+$string['spe_notended'] = 'This SPE evaluation has not ended yet.';
 $string['spe_notsubmitted'] = 'This submission has not been submitted.';
 $string['groupnotfound'] = 'You are not assigned to any group for this activity. Please contact your instructor.';
-$string['spe_ended'] = 'This SmartSPE evaluation has already ended. You can no longer submit responses.';
+$string['spe_ended'] = 'This SPE has already ended. You can no longer submit responses.';
 $string['invalidstudentid'] = 'Unknown student ID: {$a}';
 $string['file_not_saved'] = 'File could not be saved. Please try again.';
 $string['empty_or_invalid_csv'] = 'The uploaded CSV file is empty or invalid. Please check the file and try again.';
@@ -101,8 +102,9 @@ $string['duplicategroupname'] = 'Duplicate group name detected: {$a->name} on li
 $string['duplicatestudentingroup'] = 'Student ID {$a->sid} appears again (line {$a->line}) in another group.';
 $string['empty_group'] = 'A group with no student IDs was found. Please ensure all groups have at least one student.';  
 $string['no_valid_groups'] = 'No valid groups were found in the uploaded CSV file. Please check the file and try again.';
-$string['studentnotenrolled'] = 'Student ID {$a->sid} ({$a->name}) is not enrolled in this course.';
+$string['studentnotenrolled'] = 'Student ID {$a->sid} {$a->name} is not enrolled in this course.';
 $string['noindexpage'] = 'There is no index page for the SmartSPE activity. Please access it through the course page.';
-
+$string['cannotcreatezip'] = 'Cannot create ZIP file for export. Please try again later.';
+$string['nogroupsfound'] = 'No groups found for this SmartSPE activity. Cannot generate reports.';
 // Scheduled task
 $string['sentiment_task'] = 'SmartSPE Sentiment Analysis Task';
