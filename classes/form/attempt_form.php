@@ -143,10 +143,57 @@ class attempt_form extends \moodleform {
         
     }
 
-
     public function validation($data, $files) {
         $errors = parent::validation($data, $files);
+
+        $customdata = $this->_customdata;
         // Custom validation can be added here if needed
+
+        $rating = $data['rating'] ?? [];
+        if (empty($rating) || !is_array($rating)) {
+            $errors['rating'] = 'Please provide ratings for all members.';
+            return $errors;
+        }
+        // Check if there is a rating for each member and each question
+        $questions = $customdata['questions'];
+        $group = $customdata['group'];
+        $members = $group['members'];
+
+        $members[] = (object)[
+            'id' => $customdata['userid'],
+            'fullname' => 'Self'
+        ];
+
+        foreach ($members as $member) {
+            $memberid = $member->id;
+            if (!isset($rating[$memberid]) || !is_array($rating[$memberid])) {
+                $errors['rating'] = 'Please provide ratings for member ' . $member->fullname;
+                return $errors;
+            }
+            foreach ($questions as $q) {
+                $qid = $q->id;
+                $value = $rating[$memberid][$qid] ?? null;
+                if (!isset($value) || $value === '') {
+                    $errors['rating'] = 'Please provide ratings for all questions for member ' . $member->fullname ;
+                    return $errors;
+                }
+                if ($value < 1 || $value > 5) {
+                    $errors['rating'] = 'Ratings must be between 1 and 5.';
+                    return $errors;
+                }
+                $comment = $data['comment'][$memberid] ?? '';
+                if (trim($comment) === '') {
+                    $errors['comment'] = 'Please provide comments for member ' . $member->fullname;
+                    return $errors;
+                }
+            } 
+        }     
+        $selfreflect = $data['selfreflect'] ?? '';
+        if (trim($selfreflect) === '') {
+            $errors['selfreflect'] = 'Please provide your self reflection.';
+            return $errors;
+        }       
+
         return $errors;
     }
 }
