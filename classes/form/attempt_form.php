@@ -76,7 +76,7 @@ class attempt_form extends \moodleform {
 
             $mform->addElement('select', $fieldname, $label, $options);
             $mform->addRule($fieldname, null, 'required', null, 'client');
-            $mform->setDefault($fieldname, '');
+            // $mform->setDefault($fieldname, '');
 
         }
 
@@ -119,7 +119,7 @@ class attempt_form extends \moodleform {
 
                 $mform->addElement('select', $fieldname, $label, $options);
                 $mform->addRule($fieldname, null, 'required', null, 'client');
-                $mform->setDefault($fieldname, '');
+                // $mform->setDefault($fieldname, '');
             }
 
             // Add comment box
@@ -133,13 +133,11 @@ class attempt_form extends \moodleform {
             
             $mform->addRule($commentname, null, 'required', null, 'client');
         }
-
-        $buttons = [];
-        $buttons[] =& $mform->createElement('submit', 'savedraft', 'Save draft');
+        $mform->addElement('static', 'lastsaved', '', 
+            '<span id="draft-last-saved">No draft saved yet</span>');
         $buttons[] =& $mform->createElement('submit', 'submitbutton', 'Submit Evaluation');
         $buttons[] =& $mform->createElement('cancel');
         $mform->addGroup($buttons, 'actionbuttons', '', ' ', false);
-        $mform->disabledIf('savedraft', 'submitbutton');
         
     }
 

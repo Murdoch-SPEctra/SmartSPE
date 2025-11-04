@@ -169,18 +169,39 @@ else if ($data = $mform->get_data()) {
     }    
 
 } 
-else {
-    // Display form
+else {    
 
+    // Display form
     $PAGE->set_url('/mod/smartspe/student/attempt.php', ['id' => $cm->id]);
     $PAGE->set_title(format_string($smartspe->name));
     $PAGE->set_heading(format_string($course->fullname));
     $PAGE->set_context($context);
     $PAGE->set_pagelayout('incourse');
-
+    
     echo $OUTPUT->header();
     echo $OUTPUT->heading($smartspe->name . ' - ' . $group->name);
+
+    // Check for existing draft to pre-fill form
+    $draft = $DB->get_record('smartspe_draft', [
+        'spe_id' => $smartspe->id,
+        'student_id' => $USER->id
+    ]);
+    $draftdata = [];
+    if ($draft) {
+        // Parse URL-encoded data
+        parse_str($draft->data, $draftdata);
+        
+        if ($draftdata) {
+            $mform->set_data($draftdata);
+        }   
+        // DEBUG: See what we're actually getting
+        // echo "<pre>";
+        // print_r ("Parsed draft data: " . print_r($draftdata, true));
+        // echo "</pre>";
+    }
     $mform->display();
+    $PAGE->requires->js_call_amd('mod_smartspe/savedraft', 'init',
+             [$smartspe->id, sesskey()]);
     echo $OUTPUT->footer();
 }
 
