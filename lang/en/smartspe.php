@@ -38,10 +38,22 @@ $string['smartspe:addinstance'] = 'Add a new SmartSPE activity';
 $string['modulename'] = 'Self and Peer Evaluation';
 $string['modulename_help'] = '
 This activity allows team members to assess their own and the members contribution in a project.
-This was developed in ICT302: IT Professional Practice Project with Mr. Peter Cole as the client,
- supervised by Ms. Noor Alkhateeb and the team includes Rabiya Saleh, Tercia Fernandes,
-  Gilchrist Tavares, Meagan Saldanha and Khushank Jain.
+ This was developed in ICT302: IT Professional Practice Project with Mr. Peter Cole as the client,
+  supervised by Ms. Noor Alkhateeb and the team includes Rabiya Saleh, Tercia Fernandes,
+   Gilchrist Tavares, Meagan Saldanha and Khushank Jain.
 
+The activity is created through a setup form that requires entering the activity name,
+ description, start and end dates, and uploading a CSV file containing the group details of
+  the students for whom the activity is being created.
+
+Each student logs in to complete their self and peer evaluations by rating both their own and
+ their teammates’ contributions to the project. Once submitted, the data is
+  automatically recorded and used for performance analysis.
+
+Teachers can access the submitted evaluations, download results as CSV files,
+ and review combined scores generated through the system. This allows them to
+  compare self and peer ratings, identify participation patterns, and ensure fair
+   and transparent grading for each team member.
 ';
 $string['modulename_link'] = 'https://github.com/Murdoch-SPEctra/SmartSPE';
 $string['modulenameplural'] = 'Self and Peer Evaluations';
@@ -65,17 +77,25 @@ $string['groupsheading'] = 'Groups CSV';
 $string['groupsinstructions'] = 'Upload a CSV with columns: GroupName,StudentID1,StudentID2,StudentID3.... Header row required.';
 $string['groupscsv'] = 'Groups CSV file';
 $string['groupscsv_locked'] = 'Groups CSV is locked after the activity has started or submissions exist.';
+$string['questions_locked'] = 'Evaluation questions are locked after submissions exist.';
 $string['commentsinfo_title'] = 'Comments requirement';
 $string['commentsinfo_body'] = 'Each student must enter self and peer comments. These are always collected and analysed for sentiment.';
 $string['file_not_saved'] = 'File could not be saved. Please try again.';
 $string['invalid_file_type'] = 'Invalid file type. Please upload a CSV file.';
 
 // Validation messages.
+$string['error_startbeforecurrent'] = 'Start date must be in the future.';
 $string['error_endbeforestart'] = 'End date must be after start date.';
 $string['error_minquestions'] = 'At least two questions are required.';
 $string['error_question_gap'] = 'Remove gaps: fill earlier question(s) or clear this one.';
 $string['error_requiredquestion'] = 'This question text is required.';
 
+// Student form validation messages.
+$string['error_missingrating'] = 'Please provide a rating for {$a}.';
+$string['error_missingcomment'] = 'Please provide comments for {$a}.';
+$string['error_selfreflection'] = 'Please provide your self reflection.';
+$string['error_invalidrating'] = 'Invalid rating for {$a}.';
+$string['error_invalidmemberid'] = 'Invalid member ID: {$a}.';
 
 // Other strings.
 $string['viewingsubmissionfor'] = 'Viewing submission for: {$a->fullname} (Student ID: {$a->studentid})';
