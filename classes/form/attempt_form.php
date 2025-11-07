@@ -149,7 +149,7 @@ class attempt_form extends \moodleform {
 
         $rating = $data['rating'] ?? [];
         if (empty($rating) || !is_array($rating)) {
-            $errors['rating'] = 'Please provide ratings for all members.';
+            $errors['rating'] = get_string('error_missingrating', 'mod_smartspe');
             return $errors;
         }
         // Check if there is a rating for each member and each question
@@ -165,30 +165,62 @@ class attempt_form extends \moodleform {
         foreach ($members as $member) {
             $memberid = $member->id;
             if (!isset($rating[$memberid]) || !is_array($rating[$memberid])) {
-                $errors['rating'] = 'Please provide ratings for member ' . $member->fullname;
+                $errors['rating'] = get_string('error_missingrating', 'mod_smartspe',
+                                            s($member->fullname));
                 return $errors;
             }
             foreach ($questions as $q) {
                 $qid = $q->id;
                 $value = $rating[$memberid][$qid] ?? null;
                 if (!isset($value) || $value === '') {
-                    $errors['rating'] = 'Please provide ratings for all questions for member ' . $member->fullname ;
+                    $errors['rating'] = get_string('error_missingrating', 'mod_smartspe',
+                                            s($member->fullname));
                     return $errors;
                 }
                 if ($value < 1 || $value > 5) {
-                    $errors['rating'] = 'Ratings must be between 1 and 5.';
+                    $errors['rating'] = get_string('error_invalidrating', 'mod_smartspe',
+                                     s($value));
                     return $errors;
                 }
                 $comment = $data['comment'][$memberid] ?? '';
                 if (trim($comment) === '') {
-                    $errors['comment'] = 'Please provide comments for member ' . $member->fullname;
+                    $errors['comment'] = get_string('error_missingcomment', 'mod_smartspe',
+                                         s($member->fullname));
                     return $errors;
                 }
             } 
         }     
+
+        // Validate if the questionsids exist in the fixture
+
+        $questions = $this->_customdata['questions'] ?? [];
+        $questionids = array_map(fn($q) => $q->id, $questions);
+        foreach ($rating as $memberid => $ratingsformember) {
+            foreach ($ratingsformember as $qid => $value) {
+                if (!in_array($qid, $questionids)) {
+                    $errors['rating'] = 
+                        get_string('error_invalidrating', 'mod_smartspe', s($qid));
+                    return $errors;
+                }
+            }
+        }
+
+        // Validate if the memberids exist in the group or is the user themselves
+        $group = $this->_customdata['group'] ?? [];
+        $memberids = array_map(fn($m) => $m->id, $group['members'] ?? []);
+        $memberids[] = $this->_customdata['userid']; // include self
+
+        foreach ($rating as $memberid => $ratingsformember) {
+            if (!in_array($memberid, $memberids)) {
+                $errors['rating'] = get_string('error_invalidmemberid', 'mod_smartspe',
+                                    s($memberid));
+                return $errors;
+            }
+        } 
+
         $selfreflect = $data['selfreflect'] ?? '';
         if (trim($selfreflect) === '') {
-            $errors['selfreflect'] = 'Please provide your self reflection.';
+            $errors['selfreflect'] = get_string('error_selfreflection', 'mod_smartspe');
             return $errors;
         }       
 
