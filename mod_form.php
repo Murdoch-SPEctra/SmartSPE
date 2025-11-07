@@ -34,7 +34,24 @@ class mod_smartspe_mod_form extends moodleform_mod {
      * Defines forms elements.
      */
     public function definition() {
+        global $DB;
         $mform = $this->_form;        
+
+        // Determine add vs edit, and whether critical fields should be locked.
+        $isupdate = !empty($this->current->instance);
+        $lockedquestions = false;
+        $locked = false;
+        $lockgroups = false;
+        if ($isupdate) {
+            // Fetch current instance to decide locking.
+            $spe = $DB->get_record('smartspe', ['id' => (int)$this->current->instance]);
+            $hasresponses = !empty($spe) && $DB->record_exists('smartspe_submission', ['spe_id' => $spe->id]);
+            
+            // Typically groups are also locked once started or responses exist.
+            $lockgroups = $hasresponses;
+            $lockedquestions = $hasresponses;
+            $locked = $hasresponses;
+        }
 
         // Activity core settings.
         $mform->addElement('header', 'generalhdr', get_string('general')); 
@@ -79,12 +96,31 @@ class mod_smartspe_mod_form extends moodleform_mod {
             'accepted_types' => ['.csv'],
         ];
         $mform->addElement('filepicker', 'groupscsv', get_string('groupscsv', 'mod_smartspe'), null, $fileoptions);
-        $mform->addRule('groupscsv', null, 'required', null, 'client');
+        
+        // Only required when creating a new instance. On edit, it's optional (keeps existing groups unless replaced).
+        if (!$isupdate) {
+            $mform->addRule('groupscsv', null, 'required', null, 'client');
+            $mform->addElement('hidden', 'isupdate', 0);
+        }
+        else{
+            $mform->addElement('hidden', 'isupdate', 1);
+        }
+        $mform->setType('isupdate', PARAM_INT);
+        if ($isupdate && $locked) {
+            // Prevent replacing groups after the activity has started or responses exist.
+            $mform->freeze('groupscsv');
+            $mform->addElement('static', 'groupscsv_note', '', get_string('groupscsv_locked', 'mod_smartspe'));
+        }
 
         // Evaluation questions.
         $mform->addElement('header', 'questionshdr', get_string('questionsheading', 'mod_smartspe'));
         $mform->addElement('static', 'questioninstructions', '', get_string('questioninstructions', 'mod_smartspe'));
-
+        
+        if($isupdate && $lockedquestions) {
+            $mform->addElement('static', 'questions_note', '',
+                         get_string('questions_locked', 'mod_smartspe'));
+        }
+        
         for ($i = 1; $i <= 5; $i++) {
             $name = "questions[$i]"; // Use array syntax in form name.
 
@@ -98,8 +134,13 @@ class mod_smartspe_mod_form extends moodleform_mod {
 
             $mform->setType($name, PARAM_TEXT);
 
-            if ($i <= 2) {
+            
+            // First two questions are required on create; on edit they're required only if not yet started.
+            if ($i <= 2 && (!$isupdate || ($isupdate && !$locked))) {
                 $mform->addRule($name, get_string('error_requiredquestion', 'mod_smartspe'), 'required', null, 'client');
+            }
+            if ($isupdate && $locked) {
+                $mform->freeze($name);
             }
         }
 
@@ -110,9 +151,10 @@ class mod_smartspe_mod_form extends moodleform_mod {
 
     function validation($data, $files) {
         global $CFG;
+        global $DB;
 
         $errors = parent::validation($data, $files);
-        // Server side validation.
+        
         // Activity name.
         $name = trim((string)($data['name'] ?? ''));
         if ($name === '') {
@@ -133,47 +175,107 @@ class mod_smartspe_mod_form extends moodleform_mod {
         } else if (!empty($start) && $end <= $start) {
             $errors['end_date'] = get_string('error_endbeforestart', 'mod_smartspe');
         }
+        // Start date must be 4 hours in the future
+        else if( $start  < (time() + 60 * 60 * 4)) {
+            $errors['start_date'] = get_string('error_startbeforecurrent', 'mod_smartspe');
+        }
+           
 
-        // first two required, each <= 255 chars.
-        foreach ($data['questions'] as $i => $val) {
-            $val = trim((string)$val);
-            if ($i <= 2 && $val === '') {
-                $errors["questions[$i]"] = get_string('required');
+        // first two required when creating; on edit only if not yet started.
+        if (!empty($data['questions']) && is_array($data['questions'])) {
+            foreach ($data['questions'] as $i => $val) {
+                $val = trim((string)$val);
+                if ($i <= 2 && $val === '') {
+                    $errors["questions[$i]"] = get_string('required');
+                }
             }
+
+            // Make sure the questions are filled sequentially, but only if editable.            
+            for ($i = 2; $i <= 4; $i++) {
+                $current = trim((string)($data['questions'][$i] ?? ''));
+                $next = trim((string)($data['questions'][$i + 1] ?? ''));
+                if ($current === '' && $next !== '') {
+                        $index = $i + 1;
+                        $errors["questions[$index]"] = get_string('error_sequentialquestions',
+                                                    'mod_smartspe');
+                }
+            }            
         }
 
-        // Make sure the questions are filled sequentially 
-        for ($i = 2; $i <= 4; $i++) {
-            $current = trim((string)($data['questions'][$i] ?? ''));
-            $next = trim((string)($data['questions'][$i + 1] ?? ''));
-            if ($current === '' && $next !== '') {
-                $errors["questions[" . ($i + 1) . "]"] = get_string('error_sequentialquestions', 'mod_smartspe');
-            }
-        }
-
-        // Validate CSV upload presence (server-side).
-        $draftid = (int)($data['groupscsv'] ?? 0);
-        if (empty($draftid)) {
-            $errors['groupscsv'] = get_string('required');
-        } else {            
-            $info = file_get_draft_area_info($draftid);
-            if (empty($info['filecount'])) {
-                $errors['groupscsv'] = get_string('required');
-            }
-        }
+        // // Validate CSV upload presence (server-side): required only when creating.
+        // if (!$isupdate) {
+        //     $draftid = (int)($data['groupscsv'] ?? 0);
+        //     if (empty($draftid)) {
+        //         $errors['groupscsv'] = get_string('required');
+        //     } else {
+        //         $info = file_get_draft_area_info($draftid);
+        //         if (empty($info['filecount'])) {
+        //             $errors['groupscsv'] = get_string('required');
+        //         }
+        //     }
+        // }
         return $errors;
     }
 
     function data_preprocessing(&$default_values) {
-       // Default dates when creating a new instance.
-        if (empty($this->current->instance)) {
+       global $DB;
+
+        // If editing an existing instance, populate form with saved values.
+        if (!empty($this->current->instance)) {
+            $speid = (int)$this->current->instance;
+            $smartspe = $DB->get_record('smartspe', ['id' => $speid], '*', MUST_EXIST);
+
+            $default_values['name'] = $smartspe->name;
+            $default_values['desc'] = $smartspe->description;
+            $default_values['start_date'] = $smartspe->start_date;
+            $default_values['end_date'] = $smartspe->end_date;
+
+            // Load questions into the array expected by the form (indices match what form uses).
+            $questions = $DB->get_records('smartspe_question', ['spe_id' => $speid], 'sort_order');
+            if (!empty($questions)) {
+                foreach ($questions as $q) {
+                    // Ensure indexes are consistent with form (1..5)
+                    $default_values['questions'][(int)$q->sort_order] = $q->text;
+                }
+            }            
+
+        } 
+        else {
+            // Default dates when creating a new instance.
             if (empty($default_values['start_date'])) {
-                $default_values['start_date'] = time();
+                $default_values['start_date'] = time() + HOURSECS * 4;
             }
             if (empty($default_values['end_date'])) {
                 $default_values['end_date'] = time() + WEEKSECS*4;
             }
-        }       
+
+            // Pull questions from the last modified instance from the same course as defaults.
+            $courseid = (int)($this->current->course ?? 0);
+            if ($courseid > 0) {
+                $spes = $records = $DB->get_records(
+                            'smartspe',
+                            ['course' => $courseid],
+                            'timemodified DESC',
+                            'id, timemodified',
+                            0,
+                            1
+                        );
+                $lastspe = reset($spes);
+                if ($lastspe) {
+                    $questions = $DB->get_records('smartspe_question',
+                                        ['spe_id' => $lastspe->id], 'sort_order');
+                    if (!empty($questions)) {
+                        foreach ($questions as $q) {
+                            // Ensure indexes are consistent with form (1..5)
+                            $default_values['questions'][(int)$q->sort_order] = $q->text;
+                        }
+                    }
+                }
+            }
+        }
+
+        return;
+        
     }
     
 }
