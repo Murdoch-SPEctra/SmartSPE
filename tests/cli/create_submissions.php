@@ -58,15 +58,10 @@ foreach ($groups as $group) {
             'student_id' => $group_member->user_id,
             'last_saved_at' => time(),
             'submitted_at' => time(),
+            'reflection' => "This is a self reflection by user {$member->email}."
         ];
         $submissionid = $DB->insert_record('smartspe_submission', $submission);
-
-        // Insert self reflection
-        $self_reflection = (object)[
-            'submission_id' => $submissionid,
-            'reflection' => "This is a self reflection by user {$member->email}.",            
-        ];
-        $DB->insert_record('smartspe_selfreflect', $self_reflection);
+       
 
         // Insert peer reviews
 

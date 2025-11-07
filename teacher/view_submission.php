@@ -81,7 +81,6 @@ $group_members = $DB->get_records('smartspe_group_member',
 $criteria = $DB->get_records('smartspe_question', ['spe_id' => $smartspe->id], 'sort_order ASC');
 $answers = $DB->get_records('smartspe_answer', ['submission_id' => $submissionid]);
 $comments = $DB->get_records('smartspe_comment', ['submission_id' => $submissionid]);
-$selfreflect = $DB->get_record('smartspe_selfreflect', ['submission_id' => $submissionid]);
 
 $template_data = [
     'viewingsubmissionfor' => get_string('viewingsubmissionfor', 'mod_smartspe', 
@@ -162,7 +161,7 @@ foreach ($group_members as $member) {
 
     // Self-reflection (only for the submitter)
     $is_self = ($member->user_id == $submission->student_id);
-    $reflection = $is_self ? $selfreflect->reflection : null;
+    $reflection = $is_self ? $submission->reflection : null;
 
     $profilepic = core_user::get_profile_picture($user, $context);
     $imageURL = $profilepic->get_url($PAGE)->out();

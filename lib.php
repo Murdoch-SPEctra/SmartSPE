@@ -270,9 +270,6 @@ function smartspe_delete_instance($speid) {
         $DB->delete_records_select('smartspe_answer',
              'submission_id IN (SELECT id FROM {smartspe_submission} WHERE spe_id = ?)',
              [$speid]);
-        $DB->delete_records_select('smartspe_selfreflect',
-             'submission_id IN (SELECT id FROM {smartspe_submission} WHERE spe_id = ?)',
-             [$speid]);
         $DB->delete_records_select('smartspe_comment',
              'submission_id IN (SELECT id FROM {smartspe_submission} WHERE spe_id = ?)',
              [$speid]);

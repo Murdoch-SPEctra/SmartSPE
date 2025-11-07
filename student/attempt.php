@@ -116,7 +116,8 @@ else if ($data = $mform->get_data()) {
             'spe_id' => $smartspe->id,
             'student_id' => $USER->id,
             'last_saved_at' => $timenow,
-            'submitted_at' => $timenow            
+            'submitted_at' => $timenow,
+            'reflection' => $data->selfreflect        
         ];
 
         $transaction = $DB->start_delegated_transaction();
@@ -151,11 +152,7 @@ else if ($data = $mform->get_data()) {
             
             $DB->insert_record('smartspe_comment', $comment);
         }
-        $selfreflect = (object)[
-            'submission_id' => $submission->id,
-            'reflection' => $data->selfreflect
-        ];
-        $DB->insert_record('smartspe_selfreflect', $selfreflect);
+        
 
         $transaction->allow_commit(); 
 

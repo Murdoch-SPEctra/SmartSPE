@@ -49,6 +49,7 @@
         <FIELD NAME="student_id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false"/>
         <FIELD NAME="last_saved_at" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false"/>
         <FIELD NAME="submitted_at" TYPE="int" LENGTH="10" NOTNULL="false" SEQUENCE="false"/>
+        <FIELD NAME="reflection" TYPE="text" NOTNULL="false" SEQUENCE="false"/>
       </FIELDS>
       <KEYS>
         <KEY NAME="primary" TYPE="primary" FIELDS="id"/>
@@ -95,17 +96,6 @@
         <KEY NAME="primary" TYPE="primary" FIELDS="id"/>
         <KEY NAME="submission_id_fk" TYPE="foreign" FIELDS="submission_id" REFTABLE="smartspe_submission" REFFIELDS="id"/>
         <KEY NAME="target_id_fk" TYPE="foreign" FIELDS="target_id" REFTABLE="user" REFFIELDS="id"/>
-      </KEYS>
-    </TABLE>
-    <TABLE NAME="smartspe_selfreflect" COMMENT="Table for SPE_SelfReflect">
-      <FIELDS>
-        <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true"/>
-        <FIELD NAME="submission_id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false"/>
-        <FIELD NAME="reflection" TYPE="text" NOTNULL="false" SEQUENCE="false"/>
-      </FIELDS>
-      <KEYS>
-        <KEY NAME="primary" TYPE="primary" FIELDS="id"/>
-        <KEY NAME="submission_id_fk" TYPE="foreign" FIELDS="submission_id" REFTABLE="smartspe_submission" REFFIELDS="id"/>
       </KEYS>
     </TABLE>
     <TABLE NAME="smartspe_draft" COMMENT="Table for SPE_Draft">
