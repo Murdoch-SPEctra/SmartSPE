@@ -73,6 +73,10 @@ $string['questionlabel'] = 'Question {$a}';
 $string['questiongrouplabel'] = 'Question {$a}';
 $string['questionplaceholder'] = 'Question {$a} text';
 $string['questionnickplaceholder'] = 'Nickname';
+
+// Preset question options.
+$string['presetquestion'] = 'Select a preset question or type your own...';
+
 $string['groupsheading'] = 'Groups CSV';
 $string['groupsinstructions'] = 'Upload a CSV with columns: GroupName,StudentID1,StudentID2,StudentID3.... Header row required.';
 $string['groupscsv'] = 'Groups CSV file';

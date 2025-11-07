@@ -121,13 +121,18 @@ class mod_smartspe_mod_form extends moodleform_mod {
                          get_string('questions_locked', 'mod_smartspe'));
         }
         
+        // Get preset questions and format for autocomplete.
+        $presetquestions = $this->get_preset_questions();
+        
         for ($i = 1; $i <= 5; $i++) {
             $name = "questions[$i]"; // Use array syntax in form name.
 
-            $mform->addElement('text', $name, 
+            // Use autocomplete for preset + custom option.
+            $mform->addElement('autocomplete', $name, 
                 get_string('questiongrouplabel', 'mod_smartspe', $i),
+                $presetquestions,
                 [
-                    'size' => 60,
+                    'tags' => true, // Allows custom text entry
                     'placeholder' => get_string('questionplaceholder', 'mod_smartspe', $i)
                 ]
             );
@@ -276,6 +281,29 @@ class mod_smartspe_mod_form extends moodleform_mod {
 
         return;
         
+    }
+    
+    /**
+     * Returns preset question options formatted for autocomplete element.
+     * 
+     * @return array Associative array where both key and value are the question text
+     */
+    private function get_preset_questions() {
+        $questions = [
+            'The amount of work and effort put into the Requirements and Analysis Document, the Project Management Plan, and the Design Document',
+            'Willingness to work as part of the group and taking responsibility in the group',
+            'Communication within the group and participation in group meetings',
+            'Contribution to the management of the project, e.g. work delivered on time',
+            'Problem solving and creativity on behalf of the group\'s work'
+        ];
+        
+        // Convert to X => X format for autocomplete
+        $formatted = ['' => get_string('presetquestion', 'mod_smartspe')];
+        foreach ($questions as $question) {
+            $formatted[$question] = $question;
+        }
+        
+        return $formatted;
     }
     
 }
