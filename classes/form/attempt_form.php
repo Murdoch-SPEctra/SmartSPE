@@ -188,6 +188,13 @@ class attempt_form extends \moodleform {
                                          s($member->fullname));
                     return $errors;
                 }
+                // Make sure words count > 100
+                $wordcount = str_word_count(strip_tags($comment));
+                if ($wordcount < 100) {
+                    $errors['comment'] = get_string('error_commentwordcount', 'mod_smartspe',
+                                         s($member->fullname));
+                    return $errors;
+                }
             } 
         }     
 
