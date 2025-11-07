@@ -33,5 +33,14 @@ $tasks = [
         'day' => '*',
         'dayofweek' => '*',
         'month' => '*'
+    ],
+    [
+        'classname' => 'mod_smartspe\task\clean_draft_task',
+        'blocking' => 0,
+        'minute' => '0',     // 00 minutes
+        'hour' => '0',       // 00:00
+        'day' => '*',        // every day of month
+        'dayofweek' => '0',  // Sunday
+        'month' => '*'       // every month
     ]
 ];

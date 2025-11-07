@@ -128,3 +128,4 @@ $string['cannotcreatezip'] = 'Cannot create ZIP file for export. Please try agai
 $string['nogroupsfound'] = 'No groups found for this SmartSPE activity. Cannot generate reports.';
 // Scheduled task
 $string['sentiment_task'] = 'SmartSPE Sentiment Analysis Task';
+$string['clean_draft_task'] = 'SmartSPE Clean Draft Submissions Task';
