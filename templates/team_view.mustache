@@ -32,6 +32,22 @@
       </a>
     {{/disabled}}
 
+    {{#disabledcomment}}
+      <span 
+        data-bs-toggle="tooltip" 
+        data-bs-placement="top" 
+        title="{{disabledbuttontooltipcomment}}">
+        <a href="#" class="btn btn-secondary btn-sm disabled opacity-50" tabindex="-1" aria-disabled="true">
+          View Comments
+        </a>
+      </span>
+    {{/disabledcomment}}
+
+    {{^disabledcomment}}
+      <a href="{{{viewcommenturl}}}" class="btn btn-secondary btn-sm">
+        View Comments
+      </a>
+    {{/disabledcomment}}
   </div>
 </div>
 {{/members}}

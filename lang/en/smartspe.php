@@ -99,7 +99,7 @@ $string['error_invalidmemberid'] = 'Invalid member ID: {$a}.';
 
 // Other strings.
 $string['viewingsubmissionfor'] = 'Viewing submission for: {$a->fullname} (Student ID: {$a->studentid})';
-
+$string['viewingcommentsfor'] = 'Viewing comments for: {$a->fullname} (Student ID: {$a->studentid})';
 
 // Attempt
 $string['submissionsaved'] = 'Your response has been saved.';

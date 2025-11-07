@@ -1,0 +1,49 @@
+{{!
+    Template for displaying team member submissions
+}}
+
+
+<h2 class="mb-4">{{viewingcommentsfor}}</h2>
+
+<div class="team-submissions">
+    {{#members}}
+    <div class="card mb-3">
+        <div class="card-header d-flex align-items-center" >
+            <img src="{{profilepic}}" alt="Profile Picture" class="rounded-circle mr-3" style="width: 50px; height: 50px;">
+            <div>
+                <h5 class="mb-0">{{fullname}}</h5>
+                <small class="text-muted">Student ID: {{studentid}}</small>
+            </div>            
+        </div>
+        <div class="collapse show" id="member-{{studentid}}">
+            <div class="card-body">
+                {{#isself}}
+                <div class="self-reflection py-1">
+                    <h6>Self Reflection:</h6>
+                    <div class="border rounded p-3 fst-italic text-muted">
+                        "{{selfreflect}}"
+                    </div>
+                </div>
+                {{/isself}}
+                
+                <div class="comments py-1">
+                    <h6>Comments:</h6>
+                    <div class="border rounded p-3">
+                        <div class="d-flex align-items-center justify-content-between">
+                            <span class="fst-italic text-muted">
+                                {{comment}}
+                            </span>
+                            <span class="badge {{senticlass}} ms-2">
+                                {{sentiment}}
+                            </span>
+                        </div>
+                    </div>
+                </div>                
+            </div>
+        </div>
+    </div>
+    {{/members}}
+</div>
+
+
+

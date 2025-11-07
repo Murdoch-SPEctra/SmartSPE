@@ -80,12 +80,15 @@ foreach ($members as $member) {
 
     $disabledbuttontooltip = 'Cannot view until SPE end date.';
     $viewurl = '#';
+    $commenturl = new moodle_url('/mod/smartspe/teacher/view_comment.php', 
+            ['id' => $id, 'studentid' => $member->id ]);
     if(!$member->submissionid){
         $disabledbuttontooltip = 'No submission found for this user.';
     }
     else{
         $viewurl = new moodle_url('/mod/smartspe/teacher/view_submission.php', 
             ['id' => $id, 'teamid' => $teamid, 'submissionid' => $member->submissionid]);
+        
     }    
 
     $template_data['members'][] = [
@@ -93,8 +96,11 @@ foreach ($members as $member) {
         'studentid' => $member->id,
         'profilepic' => $imageURL,
         'viewurl' => $viewurl,
-        'disabled' => $disabled || !$member->submissionid,
+        'disabled' => $disabled || !$member->submissionid,        
         'disabledbuttontooltip' => $disabledbuttontooltip ,
+        'disabledcomment' => $disabled,
+        'viewcommenturl' => $commenturl,
+        'disabledbuttontooltipcomment' => 'Cannot view comments until SPE end date.' ,
     ];
 }
 
