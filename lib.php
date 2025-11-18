@@ -261,7 +261,9 @@ function smartspe_delete_instance($speid) {
          'group_id IN (SELECT id FROM {smartspe_group} WHERE spe_id = ?)', [$speid]);
 
         $DB->delete_records('smartspe_group', ['spe_id' => $speid]);
-       
+        
+        // Delete drafts
+        $DB->delete_records('smartspe_draft', ['spe_id' => $speid]);
 
         // Delete questions
         $DB->delete_records('smartspe_question', ['spe_id' => $speid]);
