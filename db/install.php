@@ -29,7 +29,7 @@ defined('MOODLE_INTERNAL') || die();
  *
  * @return bool
  */
-function xmldb_mod_smartspe_install() {
+function xmldb_smartspe_install() {
     // Add post-install tasks here (e.g., default config).
     // set_config('somekey', 'value', 'mod_smartspe');
     return true;

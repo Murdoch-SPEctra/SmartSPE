@@ -58,3 +58,5 @@ $capabilities = [
     ],
    
 ];
+
+return $capabilities;

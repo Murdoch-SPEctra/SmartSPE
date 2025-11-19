@@ -29,7 +29,7 @@ defined('MOODLE_INTERNAL') || die();
  *
  * @return bool
  */
-function xmldb_mod_smartspe_uninstall(): bool {
+function xmldb_smartspe_install(): bool {
     
     return true;
 }
