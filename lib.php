@@ -243,7 +243,6 @@ function smartspe_add_instance($data, $mform = null){
         }        
         $transaction->allow_commit(); 
         $activity->id = $speid;
-        create_event($activity);
         return $speid; 
     } catch (\Throwable $th) {
         throw $th;

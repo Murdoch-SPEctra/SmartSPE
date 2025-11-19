@@ -180,8 +180,8 @@ class mod_smartspe_mod_form extends moodleform_mod {
         } else if (!empty($start) && $end <= $start) {
             $errors['end_date'] = get_string('error_endbeforestart', 'mod_smartspe');
         }
-        // Start date must be 4 hours in the future
-        else if( $start  < (time() + 60 * 60 * 4)) {
+        // Start date must be in the future. 
+        else if( $start < time() ) {
             $errors['start_date'] = get_string('error_startbeforecurrent', 'mod_smartspe');
         }
            
