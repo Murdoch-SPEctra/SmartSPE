@@ -31,7 +31,7 @@ require_once(__DIR__ . '/../../locallib.php');
 
 global $DB;
 
-$speid = 38; 
+$speid = 3; 
 
 
 echo "Generating test submissions for SmartSPE ID {$speid}...\n";
@@ -48,7 +48,7 @@ $transaction = $DB->start_delegated_transaction();
 foreach ($groups as $group) {
    $group_members = $DB->get_records('smartspe_group_member', ['group_id' => $group->id]);
    foreach ($group_members as $group_member) {
-        if ($group_member->user_id == 4) {
+        if ($group_member->user_id == 3) { // Skip gil's submission 
                     continue; // skip random to show no submission case
         } 
         // Start a transaction for each submission.

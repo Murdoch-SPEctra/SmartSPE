@@ -180,10 +180,6 @@ class mod_smartspe_mod_form extends moodleform_mod {
         } else if (!empty($start) && $end <= $start) {
             $errors['end_date'] = get_string('error_endbeforestart', 'mod_smartspe');
         }
-        // Start date must be in the future. 
-        else if( $start < time() ) {
-            $errors['start_date'] = get_string('error_startbeforecurrent', 'mod_smartspe');
-        }
            
 
         // first two required when creating; on edit only if not yet started.
@@ -248,7 +244,7 @@ class mod_smartspe_mod_form extends moodleform_mod {
         else {
             // Default dates when creating a new instance.
             if (empty($default_values['start_date'])) {
-                $default_values['start_date'] = time() + HOURSECS * 4;
+                $default_values['start_date'] = time();
             }
             if (empty($default_values['end_date'])) {
                 $default_values['end_date'] = time() + WEEKSECS*4;

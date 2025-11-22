@@ -98,7 +98,7 @@ $string['error_requiredquestion'] = 'This question text is required.';
 // Student form validation messages.
 $string['error_missingrating'] = 'Please provide a rating for {$a}.';
 $string['error_missingcomment'] = 'Please provide comments for {$a}.';
-$string['error_commentwordcount'] = 'Comments for {$a} must be at least 100 words.';
+$string['error_commentwordcount'] = 'Comments for {$a} must be at least 100 words and no more than 500 words.';
 $string['error_selfreflection'] = 'Please provide your self reflection.';
 $string['error_invalidrating'] = 'Invalid rating for {$a}.';
 $string['error_invalidmemberid'] = 'Invalid member ID: {$a}.';

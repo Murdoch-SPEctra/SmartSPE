@@ -188,10 +188,10 @@ class attempt_form extends \moodleform {
                                          s($member->fullname));
                     return $errors;
                 }
-                // Make sure words count > 100
+                // Make sure words count > 100 and < 500 words
                 $wordcount = str_word_count(strip_tags($comment));
-                if ($wordcount < 100) {
-                    $errors['comment'] = get_string('error_commentwordcount', 'mod_smartspe',
+                if ($wordcount < 100 || $wordcount > 500) {
+                    $errors["comment[$memberid]"] = get_string('error_commentwordcount', 'mod_smartspe',
                                          s($member->fullname));
                     return $errors;
                 }
@@ -230,6 +230,12 @@ class attempt_form extends \moodleform {
             $errors['selfreflect'] = get_string('error_selfreflection', 'mod_smartspe');
             return $errors;
         }       
+        // Make sure words count > 100 and < 500 words
+        $wordcount = str_word_count(strip_tags($selfreflect));
+        if ($wordcount < 100 || $wordcount > 500) {
+            $errors['selfreflect'] = get_string('error_commentwordcount', 'mod_smartspe' , s("Self Reflection"));
+            return $errors;
+        }
 
         return $errors;
     }
